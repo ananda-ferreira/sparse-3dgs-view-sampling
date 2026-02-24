@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#SBATCH --job-name=download_tandt
+#SBATCH --output=download_tandt.out
+#SBATCH --nodes=1
+#SBATCH --time=02:00:00
+#SBATCH --partition=scavenge
+
+# Use your own tmp storage
+export TMPDIR=/home/anaf/tmp
+
+# Go to dataset directory
+cd /home/anaf/sparse-3dgs/data
+
+# Download the Tanks & Temples dataset
+wget https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip
+
+# Unzip the archive
+unzip tandt_db.zip
