@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#SBATCH --job-name=download_tandt
-#SBATCH --output=download_tandt.out
+#SBATCH --job-name=getdata      # good to have same name as script for error tracing
+#SBATCH --output=dtu_download.out
 #SBATCH --nodes=1
-#SBATCH --time=02:00:00
+#SBATCH --time=24:00:00         # put 4 days at least 24 hours
 #SBATCH --partition=scavenge
 
 # Use your own tmp storage
@@ -12,8 +12,8 @@ export TMPDIR=/home/anaf/tmp
 # Go to dataset directory
 cd /home/anaf/sparse-3dgs/data
 
-# Download the Tanks & Temples dataset
-wget https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip
+# Download the DTU Rectified dataset (following DNGaussian)
+wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
 
 # Unzip the archive
-unzip tandt_db.zip
+unzip Rectified.zip
