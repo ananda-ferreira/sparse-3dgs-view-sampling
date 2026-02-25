@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#SBATCH --job-name=torch      # Job name
+#SBATCH --output=torch.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2           # Schedule one core
+#SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
+
+module load Anaconda3/2025.06-1                         # specify anaconda version
+
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs)
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+
+# activation
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install further pkgs activate env or specify env in install line
+
+
+echo "=== STEP 1: Removing any existing conda-installed PyTorch ==="
+conda remove --force -y pytorch torchvision torchaudio pytorch-cuda || true
+
+echo "=== STEP 2: Installing PyTorch 2.1.2 + CUDA 12.1 via pip (no MKL) ==="
+pip install --no-cache-dir torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+echo "=== STEP 3: Testing PyTorch import ==="
+python - << 'EOF'
+import torch
+print("Torch import OK")
+print("Torch version:", torch.__version__)
+print("CUDA version:", torch.version.cuda)
+print("Is CUDA available?", torch.cuda.is_available())
+EOF
+
+echo "DONE."
