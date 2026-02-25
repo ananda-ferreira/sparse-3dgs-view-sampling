@@ -4,7 +4,7 @@
 #SBATCH --output=job.%j.out      # Name of output file (%j expands to jobId)
 #SBATCH --cpus-per-task=2        # Schedule one core
 #SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
-#SBATCH --partition=brown        # Run on either the Red or Brown queue
+#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
 
 module load Anaconda3/2025.06-1                         # specify anaconda version
 module load PyTorch/2.1.2-foss-2023a-CUDA-12.1.1        # CUDA/12.1.1 included here, no need to load separately
