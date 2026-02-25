@@ -17,3 +17,5 @@ wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
 
 # Unzip the archive
 unzip Rectified.zip
+
+#### final version ####

@@ -1,10 +1,11 @@
 #!/bin/bash
 
-#SBATCH --job-name=installsmods     # Job name
-#SBATCH --output=installsmods.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --job-name=buildsmods     # Job name
+#SBATCH --output=buildsmods.%j.out      # Name of output file (%j expands to jobId)
 #SBATCH --cpus-per-task=2        # Schedule one core
 #SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
-#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
+#SBATCH --partition=acltr        # Run on either the Red or Brown queue
+#SBATCH --gres=gpu:1
 
 module load Anaconda3/2025.06-1                         # specify anaconda version
 # module load CUDA/12.1.1 || true
@@ -20,7 +21,9 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install fur
 # Check PyTorch imports correctly
 python - << 'EOF'
 import torch
-print("Torch OK:", torch.__version__, torch.version.cuda)
+print("Torch version:", torch.__version__)
+print("CUDA version:", torch.version.cuda)
+print("Is CUDA available?", torch.cuda.is_available())
 EOF
 
 # Install from submodules (this must run inside the repo folder)

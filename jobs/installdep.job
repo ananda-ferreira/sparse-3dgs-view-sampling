@@ -21,3 +21,19 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install fur
 conda install --yes pytorch==2.1.2 torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 conda install --quiet --yes -c conda-forge plyfile tqdm         # maybe also: pip wheel setuptools
 # pip install opencv-python joblib                              # not done yet; for video/image IO and some dataset prep scripts
+
+pip install --no-cache-dir torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+echo "=== STEP 3: Testing PyTorch import ==="
+python - << 'EOF'
+import torch
+print("Torch import OK")
+print("Torch version:", torch.__version__)
+print("CUDA version:", torch.version.cuda)
+EOF
+
+echo "DONE."
+#### final version ####
