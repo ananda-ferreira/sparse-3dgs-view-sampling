@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#SBATCH --job-name=installdeps     # Job name
+#SBATCH --job-name=installdeps      # Job name
 #SBATCH --output=installdeps.%j.out      # Name of output file (%j expands to jobId)
-#SBATCH --cpus-per-task=2        # Schedule one core
-#SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --cpus-per-task=2           # Schedule one core
+#SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --partition=scavenge        # Run on either the Red or Brown queue
 
 module load Anaconda3/2025.06-1                         # specify anaconda version
@@ -19,19 +19,5 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install further pkgs activate env or specify env in install line
 
 conda install --yes pytorch==2.1.2 torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-conda install --quiet --yes -c conda-forge plyfile tqdm                        # maybe also: pip wheel setuptools
-# pip install opencv-python joblib                              # for video/image IO and some dataset prep scripts
-
-# Install from submodules (this must run inside the repo folder)
-cd ~/sparse-3dgs/gaussian-splatting
-
-pip install submodules/diff-gaussian-rasterization
-pip install submodules/simple-knn
-pip install submodules/fused-ssim
-
-echo "Environment created successfully."
-nvidia-smi
-# Show what got built/linked
-python -c "import sys, pkgutil; print('PYTHON:', sys.executable); print(sorted([m.name for m in pkgutil.iter_modules() if m.name in ('diff_gaussian_rasterization','simple_knn','fused_ssim')]))"
-
-# This is for hpc not hpc3
+conda install --quiet --yes -c conda-forge plyfile tqdm         # maybe also: pip wheel setuptools
+# pip install opencv-python joblib                              # not done yet; for video/image IO and some dataset prep scripts

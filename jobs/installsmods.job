@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#SBATCH --job-name=installdeps     # Job name
+#SBATCH --output=installdeps.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2        # Schedule one core
+#SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
+
+module load Anaconda3/2025.06-1                         # specify anaconda version
+# module load CUDA/12.1.1 || true
+
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs)
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+
+# activation
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install further pkgs activate env or specify env in install line
+
+# Check PyTorch imports correctly
+python - << 'EOF'
+import torch
+print("Torch OK:", torch.__version__, torch.version.cuda)
+EOF
+
+# Install from submodules (this must run inside the repo folder)
+cd ~/sparse-3dgs/gaussian-splatting
+
+pip install --no-build-isolation submodules/diff-gaussian-rasterization
+pip install --no-build-isolation submodules/simple-knn
+pip install --no-build-isolation submodules/fused-ssim
+
+echo "Environment created successfully."
+nvidia-smi
+
+# This is for hpc not hpc3
