@@ -19,6 +19,6 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
-python train.py -s ../data/db/playroom/ --eval
+python /home/anaf/sparse-3dgs/gaussian-splatting/train.py -s ../data/db/playroom/ --eval
 
 nvidia-smi 
