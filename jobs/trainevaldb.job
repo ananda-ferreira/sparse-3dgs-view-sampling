@@ -25,8 +25,8 @@ python /home/anaf/sparse-3dgs/gaussian-splatting/train.py \
     -m /home/anaf/sparse-3dgs/gaussian-splatting/output/db/playroom/ \
     --eval
 python /home/anaf/sparse-3dgs/gaussian-splatting/render.py \
-    -m /home/anaf/sparse-3dgs/gaussian-splatting/output/db/playroom/point_cloud/iterations_7000/point_cloud.py # Generate renderings
+    -m /home/anaf/sparse-3dgs/gaussian-splatting/output/db/playroom/ # Generate renderings
 python /home/anaf/sparse-3dgs/gaussian-splatting/metrics.py \
-    -m /home/anaf/sparse-3dgs/gaussian-splatting/output/db/playroom/point_cloud/iterations_7000/point_cloud.py # Compute error metrics on renderings
+    -m /home/anaf/sparse-3dgs/gaussian-splatting/output/db/playroom/ # Compute error metrics on renderings
 
 nvidia-smi 
