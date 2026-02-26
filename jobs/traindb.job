@@ -3,12 +3,12 @@
 #SBATCH --job-name=traindb       # Job name
 #SBATCH --output=traindb.%j.out  # Name of output file (%j expands to jobId)
 #SBATCH --error=traindb.%j.err
-#SBATCH --cpus-per-task=4        # Schedule one core
-#SBATCH --partition=acltr        # High performance compute nodes with GPUs
+#SBATCH --cpus-per-task=4        # Schedule 4 for 3dgs
+#SBATCH --partition=scavenge     # High performance compute nodes with GPUs
 #SBATCH --nodelist=cn10          # closest to A6000 from vanilla 3dgs?
 #SBATCH --gres=gpu:rtx6000:1     # 3dgs is trained on 1 only
 #SBATCH --mem=32G
-#SBATCH --time=04:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --time=04:00:00          # 4 hours should be more than enough for train on 1 scene
 
 module load Anaconda3/2025.06-1 
 module load CUDA/12.1.1
