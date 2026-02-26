@@ -23,11 +23,11 @@ echo "Python version: $(python --version)"
 echo " "
 
 # Timestamp for output files
-TS=$(date +"%Y-%m-%d_%H-%M-%S")
+TS=$(date +"%m%d")
 
 # Output file paths
-CONDA_OUT="conda_list_${TS}.txt"
-PIP_OUT="pip_list_${TS}.txt"
+CONDA_OUT="condals_${TS}.txt"
+PIP_OUT="pipls_${TS}.txt"
 
 echo "Writing conda packages to: $CONDA_OUT"
 conda list > "$CONDA_OUT"
