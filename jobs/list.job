@@ -3,7 +3,8 @@
 #SBATCH --output=list.%j.out
 #SBATCH --error=list.%j.err
 #SBATCH --time=00:10:00
-#SBATCH --ntasks=1
+#SBATCH --partition=scavenge
+
 
 # Load required modules
 module load Anaconda3/2025.06-1
