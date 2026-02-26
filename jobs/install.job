@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #SBATCH --job-name=install      # Job name
 #SBATCH --output=install.%j.out      # Name of output file (%j expands to jobId)
