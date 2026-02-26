@@ -1,39 +1,59 @@
 #!/bin/bash
 
-#SBATCH --job-name=buildsmods     # Job name
-#SBATCH --output=buildsmods.%j.out      # Name of output file (%j expands to jobId)
-#SBATCH --cpus-per-task=2        # Schedule one core
-#SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
-#SBATCH --partition=acltr        # Run on either the Red or Brown queue
+#SBATCH --job-name=buildsmods
+#SBATCH --output=buildsmods.%j.out
+#SBATCH --cpus-per-task=4
+#SBATCH --time=01:00:00
+#SBATCH --partition=acltr
 #SBATCH --gres=gpu:1
 
-module load Anaconda3/2025.06-1                         # specify anaconda version
-# module load CUDA/12.1.1 || true
+set -euo pipefail
+
+module load Anaconda3/2025.06-1
+module load CUDA/12.1.1             # needed for nvcc
 
 export TMPDIR=/home/anaf/tmp
 
-# Load the conda shell function (required in batch jobs)
+# Load the conda shell function (required in batch jobs) and activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 
-# activation
-conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install further pkgs activate env or specify env in install line
+# Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
+pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
 
-# Check PyTorch imports correctly
+# Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
+export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+
+# Optional: set architectures to speed up builds (edit to match your GPU fleet)
+# Common coverage: V100(7.0), T4(7.5), A100(8.0), A10/A30/A40(8.6), L40S(8.9), H100(9.0)
+export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
+# Parallelize the C++/CUDA build with allocated CPUs
+export MAX_JOBS="${SLURM_CPUS_PER_TASK:-4}"
+
+echo "=== Environment check ==="
 python - << 'EOF'
-import torch
-print("Torch version:", torch.__version__)
-print("CUDA version:", torch.version.cuda)
-print("Is CUDA available?", torch.cuda.is_available())
+import os, numpy as np, torch
+print("Torch:", torch.__version__, "CUDA:", torch.version.cuda, "CUDA available:", torch.cuda.is_available())
+print("NumPy:", np.__version__)
+print("CUDA_HOME env:", os.environ.get("CUDA_HOME"))
+from torch.utils.cpp_extension import CUDA_HOME
+print("Torch-detected CUDA_HOME:", CUDA_HOME)
 EOF
+which nvcc || true
+nvcc --version || true
+nvidia-smi || true
+echo "========================="
 
-# Install from submodules (this must run inside the repo folder)
+# Build the submodules (must run inside repo)
 cd ~/sparse-3dgs/gaussian-splatting
 
-pip install --no-build-isolation submodules/diff-gaussian-rasterization
-pip install --no-build-isolation submodules/simple-knn
-pip install --no-build-isolation submodules/fused-ssim
+pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
+pip install -v --no-build-isolation ./submodules/simple-knn
+pip install -v --no-build-isolation ./submodules/fused-ssim
 
-echo "Environment created successfully."
+echo "DONE: all submodules built."
 nvidia-smi
 
-# This is for hpc not hpc3
+#### final version ####

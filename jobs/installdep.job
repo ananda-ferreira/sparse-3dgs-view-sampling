@@ -6,19 +6,15 @@
 #SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --partition=scavenge        # Run on either the Red or Brown queue
 
-module load Anaconda3/2025.06-1                         # specify anaconda version
-module load CUDA/12.1.1
-# module load PyTorch/2.1.2-foss-2023a-CUDA-12.1.1        # CUDA/12.1.1 included here, no need to load separately
+module load Anaconda3/2025.06-1                         
+module load CUDA/12.1.1             # I don't think needed here?
 
 export TMPDIR=/home/anaf/tmp
 
-# Load the conda shell function (required in batch jobs)
+# Load the conda shell function (required in batch jobs) and activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       
 
-# activation
-conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs       # to install further pkgs activate env or specify env in install line
-
-conda install --yes pytorch==2.1.2 torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 conda install --quiet --yes -c conda-forge plyfile tqdm         # maybe also: pip wheel setuptools
 # pip install opencv-python joblib                              # not done yet; for video/image IO and some dataset prep scripts
 
@@ -27,7 +23,7 @@ pip install --no-cache-dir torch==2.1.2+cu121 \
     torchaudio==2.1.2 \
     --index-url https://download.pytorch.org/whl/cu121
 
-echo "=== STEP 3: Testing PyTorch import ==="
+echo "=== Testing PyTorch import ==="
 python - << 'EOF'
 import torch
 print("Torch import OK")

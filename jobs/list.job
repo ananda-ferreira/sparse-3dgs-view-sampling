@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name=list
+#SBATCH --output=list.%j.out
+#SBATCH --error=list.%j.err
+#SBATCH --time=00:10:00
+#SBATCH --ntasks=1
+
+# Load required modules
+module load Anaconda3/2025.06-1
+
+# Temp directory
+export TMPDIR=/home/anaf/tmp
+
+# Load conda shell functionality (important for batch jobs)
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+
+# Activate your environment
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
+
+echo "Active Conda environment: $CONDA_DEFAULT_ENV"
+echo "Python version: $(python --version)"
+echo " "
+
+# Timestamp for output files
+TS=$(date +"%Y-%m-%d_%H-%M-%S")
+
+# Output file paths
+CONDA_OUT="conda_list_${TS}.txt"
+PIP_OUT="pip_list_${TS}.txt"
+
+echo "Writing conda packages to: $CONDA_OUT"
+conda list > "$CONDA_OUT"
+
+echo "Writing pip packages to: $PIP_OUT"
+pip list --format=freeze > "$PIP_OUT"
+
+echo "Done."
