@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaldb       # Job name
-#SBATCH --output=trainevaldb.%j.out  # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevaldb.%j.err
+#SBATCH --job-name=trainevaltat       # Job name
+#SBATCH --output=trainevaltat.%j.out  # Name of output file (%j expands to jobId)
+#SBATCH --error=trainevaltat.%j.err
 #SBATCH --cpus-per-task=4        # Schedule 4 for VGS
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
 #SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
@@ -22,19 +22,19 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
-# train model for db playroom
+# train model for tandt train
 python $VGS/train.py \
-    -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db/playroom/ \
+    -s $SPARSE/data/tandt/train/ \
+    -m $VGS/output/tandt/train/ \
     --eval
 
 # Generate renderings for trained model
 python $VGS/render.py \
-    -m $VGS/output/db/playroom/
+    -m $VGS/output/tandt/train/
  
 # Compute error metrics on renderings
 python $VGS/metrics.py \
-    -m $VGS/output/db/playroom/
+    -m $VGS/output/tandt/train/
 
 nvidia-smi 
 

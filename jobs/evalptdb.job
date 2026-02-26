@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=evalptdb7    # Job name
-#SBATCH --output=evalptdb7.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --job-name=evalptdb      # Job name
+#SBATCH --output=evalptdb.%j.out # Name of output file (%j expands to jobId)
 #SBATCH --error=evalptdb.%j.err
 #SBATCH --cpus-per-task=4        # Schedule 4 for 3dgs
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
@@ -25,7 +25,9 @@ python /home/anaf/sparse-3dgs/gaussian-splatting/render.py \
     -m /home/anaf/sparse-3dgs/gaussian-splatting/pretrained/playroom/ \
     -s /home/anaf/sparse-3dgs/data/db/playroom/ \
     --depths ''
-    
+
 # Compute error metrics on renderings
 python /home/anaf/sparse-3dgs/gaussian-splatting/metrics.py \
     -m /home/anaf/sparse-3dgs/gaussian-splatting/pretrained/playroom/ 
+
+### error: pretained model lacks model params needed for rendering in current fork of method. ###

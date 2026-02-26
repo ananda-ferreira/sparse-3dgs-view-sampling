@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --job-name=install      # Job name
+#SBATCH --output=install.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2           # Schedule one core
+#SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
+
+module load GCC/12.3.0           # try error fix
+module load CUDA/12.1.1
+module load Anaconda3/2025.06-1 
+
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs) + activate env
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
+
+which nvcc; nvcc --version    # should work now
+which python; python -V       # should point to your env’s Python
+
+# Install only what you need now
+conda install -c conda-forge opencv=4.10
