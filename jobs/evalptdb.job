@@ -20,8 +20,12 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs    
 
+# Generate renderings
 python /home/anaf/sparse-3dgs/gaussian-splatting/render.py \
     -m /home/anaf/sparse-3dgs/gaussian-splatting/pretrained/playroom/ \
-    -s /home/anaf/sparse-3dgs/data/db/playroom/ # Generate renderings
+    -s /home/anaf/sparse-3dgs/data/db/playroom/ \
+    --depths ''
+    
+# Compute error metrics on renderings
 python /home/anaf/sparse-3dgs/gaussian-splatting/metrics.py \
-    -m /home/anaf/sparse-3dgs/gaussian-splatting/pretrained/playroom/ # Compute error metrics on renderings
+    -m /home/anaf/sparse-3dgs/gaussian-splatting/pretrained/playroom/ 
