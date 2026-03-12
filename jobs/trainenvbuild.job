@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=buildsmods
-#SBATCH --output=buildsmods.%j.out
+#SBATCH --job-name=trainenvbuild
+#SBATCH --output=trainenvbuild.%j.out
 #SBATCH --cpus-per-task=4
 #SBATCH --time=01:00:00
 #SBATCH --partition=acltr
@@ -17,9 +17,6 @@ export TMPDIR=/home/anaf/tmp
 # Load the conda shell function (required in batch jobs) and activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
-
-# Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
-pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
 
 # Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
 export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}

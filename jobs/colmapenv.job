@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#SBATCH --job-name=colmapenv           
+#SBATCH --output=colmapenv.%j.out      
+#SBATCH --cpus-per-task=2              
+#SBATCH --time=01:00:00                
+#SBATCH --partition=scavenge           
+
+set -e
+set -x
+
+module purge
+module load Anaconda3/2025.06-1                         # specify anaconda version
+
+# Use your personal package cache
+export CONDA_PKGS_DIRS=/home/username/anaconda3-2025/cache
+
+# Accept TOS (required on your cluster)
+/opt/uni/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+/opt/uni/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+# Create environment (PATH-based like your sparse env)
+/opt/uni/easybuild/software/Anaconda3/2025.06-1/bin/conda create -y -p /home/username/anaconda3-2025/envs/colmap -c conda-forge colmap
+
+# Load conda shell function
+source /opt/uni/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+
+# Activate by path (correct for your setup)
+conda activate /home/username/anaconda3-2025/envs/colmap
+
+# Verify installation
+colmap -h
+
