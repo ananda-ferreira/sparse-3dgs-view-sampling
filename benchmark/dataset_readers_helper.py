@@ -34,12 +34,12 @@ class SceneInfo(NamedTuple):
 
 def getNerfppNorm(cam_info):
 
-    # # copied from graphics_utils
-    # def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
-    #     Rt = np.zeros((4, 4))
-    #     Rt[:3, :3] = R.transpose()
-    #     Rt[:3, 3] = t
-    #     Rt[3, 3] = 1.0
+    # copied from graphics_utils
+    def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
+        Rt = np.zeros((4, 4))
+        Rt[:3, :3] = R.transpose()
+        Rt[:3, 3] = t
+        Rt[3, 3] = 1.0
 
     def get_center_and_diag(cam_centers):
         cam_centers = np.hstack(cam_centers)
@@ -63,14 +63,11 @@ def getNerfppNorm(cam_info):
 
     return {"translate": translate, "radius": radius}
 
-
 # copy from 3dgs + 
 # edits: 
 #   inserted focal2fov() from 3dgs
-#   added C variable (new attribute of CameraInfo)  
 def readColmapCameras(cam_extrinsics, cam_intrinsics, depths_params, images_folder, depths_folder, test_cam_names_list):
     
-    print("READ COLMAP CAMERAS")
     def focal2fov(focal, pixels):
         return 2*math.atan(pixels/(2*focal))
     
@@ -147,6 +144,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
+####### New / Edited #######
 # new from corgs
 def topk_(matrix, K, axis=1):
     if axis == 0:
@@ -167,7 +165,6 @@ def topk_(matrix, K, axis=1):
 
 # extracted from readColmapSceneInfo
 def read_extr_and_intr(path):
-    print("\nREAD EXTR AND INTR")
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")

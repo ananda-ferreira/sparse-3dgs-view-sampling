@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-def highlight_sparse_views(cs, sparse_cs):
+def highlight_sparse_views(cs, sparse_cs = [], center = None, label=False):
 
     sparse = []
     others = []
@@ -16,17 +17,21 @@ def highlight_sparse_views(cs, sparse_cs):
     # plot all other cameras
     for i, c in others:
         ax.scatter(c[0], c[1], c[2], color='blue')
-        ax.text(c[0], c[1], c[2], str(i), color='blue', fontsize=8)
+        if label: ax.text(c[0], c[1], c[2], str(i), color='blue', fontsize=8)
 
     # Plot highlighted subset
     for i, c in sparse:
         ax.scatter(c[0], c[1], c[2], color='red')
-        ax.text(c[0], c[1], c[2], str(i), color='red', fontsize=8)
+        if label: ax.text(c[0], c[1], c[2], str(i), color='red', fontsize=8)
     
-    ax.scatter(0, 0, 0, color='green')
-    ax.text(0,0,0, "center", color='green', fontsize=8)
+    # add world center
+    ax.scatter(0,0,0, color='green')
+    if label: ax.text(0,0,0, "world", color='green', fontsize=8)
     
-
+    # add scene center
+    if center:
+        ax.scatter(center[0], center[1], center[3], color='green')
+        if label: ax.text(0,0,0, "scene", color='green', fontsize=8)
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -38,5 +43,51 @@ def highlight_sparse_views(cs, sparse_cs):
     ax.set_zlim(-6, 6)
 
     ax.set_box_aspect([1,1,1])  # equal axis scaling
+
+    plt.show()
+
+def plot_view_direction_points(view_dirs):
+    view_dirs = np.array(view_dirs)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(
+        view_dirs[:,0],
+        view_dirs[:,1],
+        view_dirs[:,2],
+        s=20
+    )
+
+    ax.set_box_aspect([1,1,1])
+    ax.set_xlim([-1,1])
+    ax.set_ylim([-1,1])
+    ax.set_zlim([-1,1])
+
+    plt.show()
+
+def plot_view_directions(view_dirs):
+    view_dirs = np.array(view_dirs)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # origin for all vectors
+    origin = np.zeros((view_dirs.shape[0], 3))
+
+    ax.quiver(
+        origin[:,0], origin[:,1], origin[:,2],
+        view_dirs[:,0], view_dirs[:,1], view_dirs[:,2],
+        length=1.0, normalize=True
+    )
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    ax.set_box_aspect([1,1,1])
+    ax.set_xlim([-1,1])
+    ax.set_ylim([-1,1])
+    ax.set_zlim([-1,1])
 
     plt.show()

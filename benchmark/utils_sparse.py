@@ -1,0 +1,92 @@
+import os
+
+import numpy as np
+from scipy.spatial.distance import cdist
+
+from dataset_readers_helper import read_extr_and_intr, readColmapCameras
+
+def calc_pairwise_distances(points: list):
+    # same as euclidean_dist?
+    # this can be improved by avoiding the squareroot computation of euclidean distance
+    pts = np.array(points)
+    return cdist(pts, pts, 'euclidean')
+
+def euclidean_dist(c, sparse_cs):
+    # sqrt computation unnecessary 
+    return np.sum((c - sparse_cs) ** 2, axis=1)
+
+# following medium post
+def farthest_point_sampling(viewCount, points, sparse_points):
+    """
+    Sample n points from input cam center or view direction points using Farthest Point Sampling. n = viewCount
+
+    Parameters:
+    points: numpy.ndarray
+        Cam centers or view direction, a numpy array of shape (N, D) where N is the
+        number of points and D is the dimensionality of each point.
+    viewCount: int
+        The number of points to sample.
+
+    Returns:
+    sparse_points: numpy.ndarray
+        The sampled pointcloud data, a numpy array of shape (viewCount, D).
+    """
+    sparse = sparse_points.copy()
+    initalSparseCount = 2
+    # initalSparseCount = len(sparse) # or len(sparse[0]) ?
+    for _ in range(initalSparseCount, viewCount):
+        # get min distances ; different than max dist based on current sparse points not pairwise dist
+        min_dists = []
+        for c in points: 
+            dists = euclidean_dist(c, sparse) # distances from each points to the already selected sparse views!
+            min_dists.append(np.min(dists))
+
+        # get points of max distance to current sparse
+        max_idx = np.argmax(min_dists)
+        sparse.append(points[max_idx])
+    return sparse
+
+def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
+    """
+    Maximize coverage by finding the views that together cover most scene points. 
+
+    Parameters:
+    viewCount: int
+        The number of views to sample.
+    unique_pts: list of numpy.ndarray
+        For each camera in the scene, a numpy array of unique 3d point ids that it covers.
+    best_view: int
+        Index of irst view with highest coverage of points. 
+
+    Returns:
+    views: list[int]
+        The sampled view indices, a list of ints.
+    """
+    if viewCount <= 0: 
+        return []
+    
+    views = [best_view]
+    views_pts = unique_pts[best_view]
+
+    for _ in range(1, viewCount):
+        new = -1
+        new_pts = np.array([])
+        for i in range(0, len(unique_pts)):
+            if i in views: continue
+            current_pts = np.union1d(views_pts, unique_pts[i])
+            if current_pts.shape > new_pts.shape:
+                new = i
+                new_pts = current_pts
+        views.append(np.int64(new))
+        views_pts = new_pts
+    return views
+
+def read_cam_infos(dataset_path):
+    extr, intr = read_extr_and_intr(dataset_path)
+    depths=""
+    cam_infos_unsorted = readColmapCameras(
+        cam_extrinsics=extr, cam_intrinsics=intr, depths_params=None,
+        images_folder=os.path.join(dataset_path, "images"), 
+        depths_folder=os.path.join(dataset_path, depths) if depths != "" else "", test_cam_names_list=[])
+    return sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name), extr
+    
