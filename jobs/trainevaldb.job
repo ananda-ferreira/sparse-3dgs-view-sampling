@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=4        # Schedule 4 for VGS
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
 # #SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
-# #SBATCH --gres=gpu:rtx8000:1     # VGS is trained on 1 only, gres=gpu:rtx6000:1
+#SBATCH --gres=gpu:1     # VGS is trained on 1 only, gres=gpu:rtx6000:1
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00          # 1 hours should be enough for train on 1 scene, trained < 20 min
 
