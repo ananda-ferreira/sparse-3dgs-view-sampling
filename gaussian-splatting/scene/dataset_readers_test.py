@@ -271,8 +271,9 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     # sample corner
     n_views = 3
     if n_views > 0:
-        sampler = RandomSampler(3, train_cam_infos)
+        sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
+        print(f" train_cam length: {len(train_cam_infos)}")
         assert len(train_cam_infos) == n_views
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
