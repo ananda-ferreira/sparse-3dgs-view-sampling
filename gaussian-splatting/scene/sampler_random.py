@@ -10,7 +10,6 @@ class RandomSampler(Sampler):
 
     def sample(self):
         sparse_idxs = sorted(sample(range(len(self.cam_infos_ext)), self.viewCount))
-        print(f"sparse idxs: {sparse_idxs}")
         self.sparse_views = [tuple([self.cam_infos_ext[i]["img_name"] for i in sparse_idxs])]
         print(f"sparse views: {self.sparse_views}")
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
