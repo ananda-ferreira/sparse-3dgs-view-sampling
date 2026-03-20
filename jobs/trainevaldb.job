@@ -33,13 +33,13 @@ python $VGS/train.py \
     -m $VGS/output/db/playroom/ \
     --eval
 
-# Generate renderings for trained model
-python $VGS/render.py \
-    -m $VGS/output/db/playroom/
+# # Generate renderings for trained model
+# python $VGS/render.py \
+#     -m $VGS/output/db/playroom/
  
-# Compute error metrics on renderings
-python $VGS/metrics.py \
-    -m $VGS/output/db/playroom/
+# # Compute error metrics on renderings
+# python $VGS/metrics.py \
+#     -m $VGS/output/db/playroom/
 
 nvidia-smi 
 

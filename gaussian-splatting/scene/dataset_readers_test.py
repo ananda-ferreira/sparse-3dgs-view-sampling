@@ -269,6 +269,8 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     train_cam_infos = [c for c in cam_infos if train_test_exp or not c.is_test]
     test_cam_infos = [c for c in cam_infos if c.is_test]
 
+    print(f"train view R and T before: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
+    
     # sample corner
     n_views = 3
     if n_views > 0:
@@ -276,7 +278,7 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
         train_cam_infos = sampler.sample()
         assert len(train_cam_infos) == n_views
     
-    print(f"first views R and T: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
+    print(f"sparse view R and T: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
     scene_info = SceneInfo(point_cloud=pcd,
