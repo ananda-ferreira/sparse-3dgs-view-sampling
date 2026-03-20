@@ -178,14 +178,14 @@ def read_extr_and_intr(path):
     return cam_extrinsics, cam_intrinsics
 
 # new from corgs
-def create_rand_ply(path, num_pts=1000):
+def create_rand_ply(path, ply_path, num_pts=1000):
     """ 
     Generates random pcd, stores it in a ply file.
 
     Returns: path of ply file which stores the random point cloud.
     """
     print('Init random point cloud.')
-    ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+    # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
     bin_path = os.path.join(path, "sparse/0/points3D.bin")
     txt_path = os.path.join(path, "sparse/0/points3D.txt")
 
@@ -204,17 +204,18 @@ def create_rand_ply(path, num_pts=1000):
     print(f"Generating random point cloud ({num_pts})...")
     shs = np.random.random((num_pts, 3)) / 255.0
     storePly(ply_path, xyz, SH2RGB(shs) * 255)
-    
-    return ply_path
-    
+        
 # adapted from 3dgs + corgs
 # edits:
 #   randome ply instead of read Colmap
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
 def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0):
-        
-    ply_path = create_rand_ply(path, num_pts=1000)
+
+    ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
+    if not os.path.exists(ply_path):
+        print("Creating random.ply, will happen only the first time you open the scene.")
+        create_rand_ply(path, ply_path, num_pts=1000)
     try:
         pcd = fetchPly(ply_path)
     except:
@@ -273,9 +274,9 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     if n_views > 0:
         sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
-        print(f" train_cam_infos: {train_cam_infos}")
         assert len(train_cam_infos) == n_views
-
+    
+    print(f"first views R and T: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
     scene_info = SceneInfo(point_cloud=pcd,
