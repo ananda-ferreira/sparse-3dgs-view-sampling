@@ -1,8 +1,8 @@
 import os, sys
 from random import sample
-from sampler import Sampler
-from plot import highlight_sparse_views
-from utils_sparse import read_cam_infos
+from benchmark.sampler import Sampler
+from benchmark.plot import highlight_sparse_views
+from benchmark.utils_sparse import read_cam_infos
 
 # cam_infos used for return
 class RandomSampler(Sampler):

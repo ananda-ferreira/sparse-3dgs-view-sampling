@@ -8,6 +8,7 @@ from typing import NamedTuple
 
 import numpy as np
 
+from benchmark.sampler_random import RandomSampler
 from colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 
 class CameraInfo(NamedTuple):
@@ -268,13 +269,12 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     train_cam_infos = [c for c in cam_infos if train_test_exp or not c.is_test]
     test_cam_infos = [c for c in cam_infos if c.is_test]
 
-    # # sample corner
-    # if n_views > 0:
-    #     sampler = RandomSampler(3, train_cam_infos)
-    #     # sampler = Sampler(viewCount = 3, train_cam_infos, recalibrate)
-    #     # train_cam_infos = sampler.sample(sampleCount = 10) should return filtered cam_infos
-    #     # assert len(train_cam_infos) == n_views
-    #     pass
+    # sample corner
+    n_views = 3
+    if n_views > 0:
+        sampler = RandomSampler(3, train_cam_infos)
+        train_cam_infos = sampler.sample()
+        assert len(train_cam_infos) == n_views
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 

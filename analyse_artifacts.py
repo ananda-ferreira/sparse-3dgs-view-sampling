@@ -6,14 +6,16 @@
 
 import os
 
-from plot import highlight_sparse_views
-from utils_sparse import read_cam_infos
-from sampler_baseline import BaselineSampler
-from sampler_random import RandomSampler
-from sampler_angular import AngularSampler
-from sampler_visibility import VisibilitySampler
+from benchmark.plot import highlight_sparse_views
+from benchmark.utils_sparse import read_cam_infos
+from benchmark.sampler_baseline import BaselineSampler
+from benchmark.sampler_random import RandomSampler
+from benchmark.sampler_angular import AngularSampler
+from benchmark.sampler_visibility import VisibilitySampler
 
 VIEWCOUNTS = [3,6,9]
+SAMPLERS = ["random", "baseline", "angular", "visibility"]
+DATASETS = ["db", "dtu", "tandt"]
 
 def sample_cam_infos(viewCount, cam_infos, extr):
 
@@ -52,14 +54,14 @@ def sample_cam_infos(viewCount, cam_infos, extr):
 
 if __name__ == "__main__":
 
-    # source_path = os.path.join("../data", "tandt", "train")
-    # source_path = os.path.join("../data", "db", "playroom")
-    source_path = os.path.join("../data", "dtu_corgs", "scan8")
+    # source_path = os.path.join("data", "tandt", "train")
+    # source_path = os.path.join("data", "db", "playroom")
+    source_path = os.path.join("data", "dtu_corgs", "scan8")
     
-    viewCount = VIEWCOUNTS[0]
+    viewCount = VIEWCOUNTS[2]
     
     cam_infos, extr = read_cam_infos(source_path)
     sparse_cam_infos, cs = sample_cam_infos(viewCount, cam_infos, extr)
 
-    sparse_cs = cs["random"][0]
+    sparse_cs = cs["baseline"][0]
     highlight_sparse_views(cs["all"], sparse_cs)

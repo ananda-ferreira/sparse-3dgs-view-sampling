@@ -1,9 +1,9 @@
 import os
 
 import numpy as np
-from utils_sparse import calc_pairwise_distances, farthest_point_sampling, read_cam_infos
-from plot import highlight_sparse_views
-from sampler import Sampler
+from benchmark.utils_sparse import calc_pairwise_distances, farthest_point_sampling, read_cam_infos
+from benchmark.plot import highlight_sparse_views
+from benchmark.sampler import Sampler
 
 # cam_infos used for return
 class BaselineSampler(Sampler):

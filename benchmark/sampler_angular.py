@@ -1,9 +1,9 @@
 import os
 
 import numpy as np
-from utils_sparse import calc_pairwise_distances, farthest_point_sampling, read_cam_infos
-from plot import highlight_sparse_views, plot_view_directions
-from sampler import Sampler
+from benchmark.utils_sparse import calc_pairwise_distances, farthest_point_sampling, read_cam_infos
+from benchmark.plot import highlight_sparse_views, plot_view_directions
+from benchmark.sampler import Sampler
 
 # cam_infos needed for view dir calculation
 # cam_infos used for return
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     print("RUNNING ANGULAR SAMPLER")
     # source_path = os.path.join("../data", "tandt", "train")
     # source_path = os.path.join("../data", "db", "playroom")
-    source_path = os.path.join("../data", "dtu_corgs", "scan8")
+    source_path = os.path.join("./data", "dtu_corgs", "scan8")
 
     cam_infos = read_cam_infos(source_path)
     sampler = AngularSampler(6, cam_infos)

@@ -2,9 +2,9 @@ import os
 
 import numpy as np
 
-from utils_sparse import maximize_point_cloud_coverage, read_cam_infos
-from plot import highlight_sparse_views
-from sampler import Sampler
+from benchmark.utils_sparse import maximize_point_cloud_coverage, read_cam_infos
+from benchmark.plot import highlight_sparse_views
+from benchmark.sampler import Sampler
 
 # extr needed for points coverage
 # cam_infos used for return
