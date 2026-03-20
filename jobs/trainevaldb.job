@@ -27,19 +27,19 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 # change into project root, for hard-coded test March 20th
 cd $SPARSE  
 
-# train model for db playroom
-python $VGS/train.py \
-    -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db/playroom/ \
-    --eval
+# # train model for db playroom
+# python $VGS/train.py \
+#     -s $SPARSE/data/db/playroom/ \
+#     -m $VGS/output/db/playroom/ \
+#     --eval
 
-# # Generate renderings for trained model
-# python $VGS/render.py \
-#     -m $VGS/output/db/playroom/
+# Generate renderings for trained model
+python $VGS/render.py \
+    -m $VGS/output/db/playroom/
  
-# # Compute error metrics on renderings
-# python $VGS/metrics.py \
-#     -m $VGS/output/db/playroom/
+# Compute error metrics on renderings
+python $VGS/metrics.py \
+    -m $VGS/output/db/playroom/
 
 nvidia-smi 
 
