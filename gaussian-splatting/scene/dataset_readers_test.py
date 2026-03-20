@@ -32,14 +32,21 @@ class SceneInfo(NamedTuple):
     ply_path: str
     is_nerf_synthetic: bool
 
-def getNerfppNorm(cam_info):
+# copied from graphics_utils
+def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
+    Rt = np.zeros((4, 4))
+    Rt[:3, :3] = R.transpose()
+    Rt[:3, 3] = t
+    Rt[3, 3] = 1.0
 
-    # copied from graphics_utils
-    def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
-        Rt = np.zeros((4, 4))
-        Rt[:3, :3] = R.transpose()
-        Rt[:3, 3] = t
-        Rt[3, 3] = 1.0
+    C2W = np.linalg.inv(Rt)
+    cam_center = C2W[:3, 3]
+    cam_center = (cam_center + translate) * scale
+    C2W[:3, 3] = cam_center
+    Rt = np.linalg.inv(C2W)
+    return np.float32(Rt)
+
+def getNerfppNorm(cam_info):
 
     def get_center_and_diag(cam_centers):
         cam_centers = np.hstack(cam_centers)
