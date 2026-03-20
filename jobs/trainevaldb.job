@@ -22,8 +22,12 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
+
+# change into project root, for hard-coded test March 20th
+cd $SPARSE  
+
 # train model for db playroom
-python $VGS/train.py \
+python $VGS/train.py \ 
     -s $SPARSE/data/db/playroom/ \
     -m $VGS/output/db/playroom/ \
     --eval

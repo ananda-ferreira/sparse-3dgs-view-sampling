@@ -2,9 +2,9 @@ import glob
 import json
 import os, sys, math
 from typing import NamedTuple
-# from plyfile import PlyData, PlyElement
-# from scene.gaussian_model import BasicPointCloud
-# from utils.sh_utils import SH2RGB
+from plyfile import PlyData, PlyElement
+from scene.gaussian_model import BasicPointCloud
+from utils.sh_utils import SH2RGB
 
 import numpy as np
 
@@ -64,7 +64,6 @@ def getNerfppNorm(cam_info):
 
     return {"translate": translate, "radius": radius}
 
-# copy from 3dgs + 
 # edits: 
 #   inserted focal2fov() from 3dgs
 def readColmapCameras(cam_extrinsics, cam_intrinsics, depths_params, images_folder, depths_folder, test_cam_names_list):
