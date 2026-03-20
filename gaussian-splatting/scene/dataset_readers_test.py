@@ -1,12 +1,22 @@
 import json
 import os, sys
+from typing import NamedTuple
 from utils.sh_utils import SH2RGB
 
 import numpy as np
 
 from scene.sampler_random import RandomSampler
 from scene.colmap_loader import read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
-from scene.dataset_readers import SceneInfo, storePly, fetchPly, getNerfppNorm, readColmapCameras
+from scene.dataset_readers import storePly, fetchPly, getNerfppNorm, readColmapCameras
+from scene.gaussian_model import BasicPointCloud
+
+class SceneInfo(NamedTuple):
+    point_cloud: BasicPointCloud
+    train_cameras: list
+    test_cameras: list
+    nerf_normalization: dict
+    ply_path: str
+    is_nerf_synthetic: bool
 
 ####### New / Edited #######
 # new from corgs
