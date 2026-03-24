@@ -44,6 +44,7 @@ class ParamGroup:
                 setattr(group, arg[0], arg[1])
         return group
 
+## Edited: add n_views as model param
 class ModelParams(ParamGroup): 
     def __init__(self, parser, sentinel=False):
         self.sh_degree = 3
@@ -56,6 +57,7 @@ class ModelParams(ParamGroup):
         self.train_test_exp = False
         self.data_device = "cuda"
         self.eval = False
+        self.n_views = 0
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):

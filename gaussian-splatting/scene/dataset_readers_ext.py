@@ -277,7 +277,6 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     test_cam_infos = [c for c in cam_infos if c.is_test]
     
 ####### Sample #######
-    n_views = 3
     if n_views > 0:
         sampler = AngularSampler(n_views, train_cam_infos)
         # sampler = RandomSampler(n_views, train_cam_infos)

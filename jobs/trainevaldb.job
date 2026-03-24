@@ -23,23 +23,23 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
-
 # change into project root, for hard-coded test March 20th
 cd $SPARSE  
 
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db-playroom-angular-3/ \
+    -m $VGS/output/db-playroom-angular-6/ \
+    --n_views 6 \
     --eval
 
 # Generate renderings for trained model
 python $VGS/render.py \
-    -m $VGS/output/db-playroom-angular-3/
+    -m $VGS/output/db-playroom-angular-6/
  
 # Compute error metrics on renderings
 python $VGS/metrics.py \
-    -m $VGS/output/db-playroom-angular-3/
+    -m $VGS/output/db-playroom-angular-6/
 
 nvidia-smi 
 
