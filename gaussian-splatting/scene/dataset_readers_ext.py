@@ -215,7 +215,7 @@ def create_rand_ply(path, ply_path, num_pts=1000):
 #   randome ply instead of read Colmap
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
-#   n_views, sampler as new params
+#   new params: n_views, sampler, model_path
 def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0, sampler_name="random", model_path=""):
 
     ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
