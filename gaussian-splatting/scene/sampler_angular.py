@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from scene.utils_sparse import calc_pairwise_distances, farthest_point_sampling, read_cam_infos
+from scene.utils_sparse import calc_pairwise_distances, farthest_point_sampling
 from scene.sampler import Sampler
 
 # cam_infos needed for view dir calculation
