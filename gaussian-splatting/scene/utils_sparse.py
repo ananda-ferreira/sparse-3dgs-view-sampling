@@ -2,8 +2,6 @@ import os
 
 import numpy as np
 
-from scene.dataset_readers_ext import read_extr_and_intr, readColmapCameras
-
 def calc_pairwise_distances(points: list):
     pts = np.array(points)
     return np.linalg.norm(pts[:, None, :] - pts[None, :, :], axis=1)
@@ -82,13 +80,3 @@ def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
         views.append(np.int64(new))
         views_pts = new_pts
     return views
-
-def read_cam_infos(dataset_path):
-    extr, intr = read_extr_and_intr(dataset_path)
-    depths=""
-    cam_infos_unsorted = readColmapCameras(
-        cam_extrinsics=extr, cam_intrinsics=intr, depths_params=None,
-        images_folder=os.path.join(dataset_path, "images"), 
-        depths_folder=os.path.join(dataset_path, depths) if depths != "" else "", test_cam_names_list=[])
-    return sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name), extr
-    
