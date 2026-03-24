@@ -216,7 +216,7 @@ def create_rand_ply(path, ply_path, num_pts=1000):
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
 #   n_views, sampler as new params
-def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0, sampler_name="random"):
+def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0, sampler_name="random", model_path=""):
 
     ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
     if not os.path.exists(ply_path):
@@ -277,16 +277,17 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     
 ####### Sample #######
     if n_views > 0:
-        print(f"number of views: {n_views}")
+        print(f"Sampling {n_views} views with {sampler_name} sampler.")
         match sampler_name:
             case "angular": sampler = AngularSampler(n_views, train_cam_infos)
             case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
             case "visibility": sampler = VisibilitySampler(n_views, train_cam_infos, cam_extrinsics)
             case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
+        sampler.save_sparse_views(sampler.sparse_views, model_path)
         assert len(train_cam_infos) == n_views
         
-    print("sampling successful")
+    print("Sampling successful, exiting script!")
     sys.exit(0)
 ####### Sample done #######
 

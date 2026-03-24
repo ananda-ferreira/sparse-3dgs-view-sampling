@@ -42,7 +42,8 @@ class Scene:
 
 ## edited: pass args.n_views/.sampler as arg to sceneLoadTypeCallbacks["Colmap"]
         if os.path.exists(os.path.join(args.source_path, "sparse")):
-            scene_info = sceneLoadTypeCallbacks["Colmap"](args.source_path, args.images, args.depths, args.eval, args.train_test_exp, n_views=args.n_views, sampler_name=args.sampler)
+            scene_info = sceneLoadTypeCallbacks["Colmap"](args.source_path, args.images, args.depths, args.eval, args.train_test_exp, 
+                                                          n_views=args.n_views, sampler_name=args.sampler, model_path=args._model_path)
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")
             scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.depths, args.eval)

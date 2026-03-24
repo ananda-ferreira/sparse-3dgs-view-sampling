@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 # should take (train) cam_infos as input, making dataset_path and read_cam_infos() redundant
@@ -30,6 +32,10 @@ class Sampler:
             views = self.sparse_views
         return [tuple([c["C"] for c in self.cam_infos_ext if c["img_name"] in vs]) for vs in views]
     
-    def save_sparse_views(views, path):
-        
-        return
+    def save_sparse_views(views, model_path):
+        if not os.path.exists(model_path):
+            return None
+        file_path = os.path.join(model_path, "sparse_views")
+        with open(file_path, 'w') as sparse_log_f:
+            sparse_log_f.write(str(views))
+            return file_path
