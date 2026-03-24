@@ -8,7 +8,7 @@ from utils.sh_utils import SH2RGB
 from samplers import RandomSampler, AngularSampler, BaselineSampler, VisibilitySampler 
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 from scene.gaussian_model import BasicPointCloud
-from plots.plot import highlight_sparse_views
+# from plots.plot import highlight_sparse_views
 
 class CameraInfo(NamedTuple):
     uid: int
