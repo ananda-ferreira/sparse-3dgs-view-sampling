@@ -32,10 +32,11 @@ class Sampler:
             views = self.sparse_views
         return [tuple([c["C"] for c in self.cam_infos_ext if c["img_name"] in vs]) for vs in views]
     
-    def save_sparse_views(self, views, model_path):
+    def save_sparse_views(self, model_path):
         if not os.path.exists(model_path):
             return None
-        file_path = os.path.join(model_path, "sparse_views")
+        file_path = os.path.join(model_path, "sparse_views2.txt")
         with open(file_path, 'w') as sparse_log_f:
-            sparse_log_f.write(str(views))
+            sparse_log_f.write(str(self.sparse_views + '\n' + self.get_sparse_cs()))
+            # also save cam centers
             return file_path
