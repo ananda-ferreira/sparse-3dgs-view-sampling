@@ -1,6 +1,6 @@
 from random import sample
 
-from scene.sampler import Sampler
+from samplers import Sampler
 
 # cam_infos used for return
 class RandomSampler(Sampler):

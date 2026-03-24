@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-from scene.utils_sparse import calc_pairwise_distances, farthest_point_sampling
-from scene.sampler import Sampler
+from samplers.utils_sparse import calc_pairwise_distances, farthest_point_sampling
+from samplers import Sampler
 
 # cam_infos needed for view dir calculation
 # cam_infos used for return
@@ -33,7 +33,7 @@ class AngularSampler(Sampler):
             sparse_cs_init = list(self.sparse_cs[0])
             self.sparse_views = self.get_sparse_view_tuples(self.get_cs(), sparse_cs_init)
             self.sparse_cs = self.get_sparse_cs()
-        
+            print(f"angular sparse views: {self.sparse_views}")
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
     
     def get_sparse_view_tuples(self, cs, top2_cs):

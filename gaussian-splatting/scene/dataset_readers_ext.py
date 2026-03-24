@@ -5,8 +5,8 @@ from plyfile import PlyData, PlyElement
 import numpy as np
 
 from utils.sh_utils import SH2RGB
-from scene.sampler_random import RandomSampler
-from scene.sampler_angular import AngularSampler
+from samplers import RandomSampler
+from samplers import AngularSampler
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 from scene.gaussian_model import BasicPointCloud
 
@@ -278,6 +278,7 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     
 ####### Sample #######
     if n_views > 0:
+        print(f"number of views: {n_views}")
         sampler = AngularSampler(n_views, train_cam_infos)
         # sampler = RandomSampler(n_views, train_cam_infos)
         # sampler = VisibilitySampler(n_views, train_cam_infos, cam_)
