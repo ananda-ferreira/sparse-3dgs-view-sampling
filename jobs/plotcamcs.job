@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaldb       # Job name
-#SBATCH --output=trainevaldb.%j.out  # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevaldb.%j.err
+#SBATCH --job-name=plotcamcs       # Job name
+#SBATCH --output=plotcamcs.%j.out  # Name of output file (%j expands to jobId)
+#SBATCH --error=plotcamcs.%j.err
 #SBATCH --cpus-per-task=4        # Schedule 4 for VGS
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
 # #SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
