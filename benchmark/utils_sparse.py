@@ -6,10 +6,14 @@ from scipy.spatial.distance import cdist
 from dataset_readers_ext_root import read_extr_and_intr, readColmapCameras
 
 def calc_pairwise_distances(points: list):
-    # same as euclidean_dist?
-    # this can be improved by avoiding the squareroot computation of euclidean distance
     pts = np.array(points)
-    return cdist(pts, pts, 'euclidean')
+    return np.linalg.norm(pts[:, None, :] - pts[None, :, :], axis=1)
+
+# def calc_pairwise_distances(points: list):
+#     # same as euclidean_dist?
+#     # this can be improved by avoiding the squareroot computation of euclidean distance
+#     pts = np.array(points)
+#     return cdist(pts, pts, 'euclidean')
 
 def euclidean_dist(c, sparse_cs):
     # sqrt computation unnecessary 

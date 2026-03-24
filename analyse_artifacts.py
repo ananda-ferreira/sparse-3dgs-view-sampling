@@ -63,5 +63,5 @@ if __name__ == "__main__":
     cam_infos, extr = read_cam_infos(source_path)
     sparse_cam_infos, cs = sample_cam_infos(viewCount, cam_infos, extr)
 
-    sparse_cs = cs["baseline"][0]
+    sparse_cs = cs["angular"][0]
     highlight_sparse_views(cs["all"], sparse_cs)
