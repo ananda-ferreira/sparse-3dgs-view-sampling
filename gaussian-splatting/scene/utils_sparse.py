@@ -3,7 +3,7 @@ import os
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from dataset_readers_ext_root import read_extr_and_intr, readColmapCameras
+from scene.dataset_readers_ext import read_extr_and_intr, readColmapCameras
 
 def calc_pairwise_distances(points: list):
     # same as euclidean_dist?

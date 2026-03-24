@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from dataset_readers_helper import read_extr_and_intr, readColmapCameras
+from dataset_readers_ext_root import read_extr_and_intr, readColmapCameras
 
 # should take (train) cam_infos as input, making dataset_path and read_cam_infos() redundant
 # cs should be mapped to cam_infos in sampler, as params will be from og 3dgs without cs

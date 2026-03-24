@@ -1,14 +1,17 @@
 import json
 import os, sys, math
 from typing import NamedTuple
-from plyfile import PlyData, PlyElement
+# from plyfile import PlyData, PlyElement
 import numpy as np
 
-from utils.sh_utils import SH2RGB
-from scene.sampler_random import RandomSampler
-from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
-from scene.gaussian_model import BasicPointCloud
+from benchmark.sampler_random import RandomSampler
+from colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 
+# from scene.gaussian_model
+class BasicPointCloud(NamedTuple):
+    points : np.array
+    colors : np.array
+    normals : np.array
 
 class CameraInfo(NamedTuple):
     uid: int
@@ -32,7 +35,12 @@ class SceneInfo(NamedTuple):
     ply_path: str
     is_nerf_synthetic: bool
 
-# copied from graphics_utils
+# from utils.sh_utils
+def SH2RGB(sh):
+    C0 = 0.28209479177387814
+    return sh * C0 + 0.5
+
+# from utils.graphics_utils
 def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
     Rt = np.zeros((4, 4))
     Rt[:3, :3] = R.transpose()
@@ -150,7 +158,6 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-
 ####### New / Edited #######
 # new from corgs
 def topk_(matrix, K, axis=1):
@@ -185,14 +192,14 @@ def read_extr_and_intr(path):
     return cam_extrinsics, cam_intrinsics
 
 # new from corgs
-def create_rand_ply(path, ply_path, num_pts=1000):
+def create_rand_ply(path, num_pts=1000):
     """ 
     Generates random pcd, stores it in a ply file.
 
     Returns: path of ply file which stores the random point cloud.
     """
     print('Init random point cloud.')
-    # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+    ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
     bin_path = os.path.join(path, "sparse/0/points3D.bin")
     txt_path = os.path.join(path, "sparse/0/points3D.txt")
 
@@ -211,16 +218,19 @@ def create_rand_ply(path, ply_path, num_pts=1000):
     print(f"Generating random point cloud ({num_pts})...")
     shs = np.random.random((num_pts, 3)) / 255.0
     storePly(ply_path, xyz, SH2RGB(shs) * 255)
-        
+    
+    return ply_path
+    
 # adapted from 3dgs + corgs
 # edits:
 #   randome ply instead of read Colmap
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
 def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0):
-
+        
+    rnd_pcd = False
     ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
-    if not os.path.exists(ply_path):
+    if not os.path.exists(ply_path) & rnd_pcd:
         print("Creating random.ply, will happen only the first time you open the scene.")
         create_rand_ply(path, ply_path, num_pts=1000)
     try:
@@ -276,16 +286,13 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     train_cam_infos = [c for c in cam_infos if train_test_exp or not c.is_test]
     test_cam_infos = [c for c in cam_infos if c.is_test]
 
-    print(f"train view R and T before: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
-    
     # sample corner
     n_views = 3
     if n_views > 0:
         sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         assert len(train_cam_infos) == n_views
-    
-    print(f"sparse view R and T: {train_cam_infos[0].R}, {train_cam_infos[0].T}")
+
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
     scene_info = SceneInfo(point_cloud=pcd,

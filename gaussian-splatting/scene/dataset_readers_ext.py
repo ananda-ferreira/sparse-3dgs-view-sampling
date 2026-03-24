@@ -1,15 +1,14 @@
-import glob
 import json
 import os, sys, math
 from typing import NamedTuple
 from plyfile import PlyData, PlyElement
-from scene.gaussian_model import BasicPointCloud
-from utils.sh_utils import SH2RGB
-
 import numpy as np
 
-from benchmark.sampler_random import RandomSampler
-from colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
+from utils.sh_utils import SH2RGB
+from scene.sampler_random import RandomSampler
+from scene.sampler_angular import AngularSampler
+from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
+from scene.gaussian_model import BasicPointCloud
 
 class CameraInfo(NamedTuple):
     uid: int
@@ -33,14 +32,21 @@ class SceneInfo(NamedTuple):
     ply_path: str
     is_nerf_synthetic: bool
 
-def getNerfppNorm(cam_info):
+# copied from graphics_utils
+def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
+    Rt = np.zeros((4, 4))
+    Rt[:3, :3] = R.transpose()
+    Rt[:3, 3] = t
+    Rt[3, 3] = 1.0
 
-    # copied from graphics_utils
-    def getWorld2View2(R, t, translate=np.array([.0, .0, .0]), scale=1.0):
-        Rt = np.zeros((4, 4))
-        Rt[:3, :3] = R.transpose()
-        Rt[:3, 3] = t
-        Rt[3, 3] = 1.0
+    C2W = np.linalg.inv(Rt)
+    cam_center = C2W[:3, 3]
+    cam_center = (cam_center + translate) * scale
+    C2W[:3, 3] = cam_center
+    Rt = np.linalg.inv(C2W)
+    return np.float32(Rt)
+
+def getNerfppNorm(cam_info):
 
     def get_center_and_diag(cam_centers):
         cam_centers = np.hstack(cam_centers)
@@ -144,6 +150,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
+
 ####### New / Edited #######
 # new from corgs
 def topk_(matrix, K, axis=1):
@@ -178,14 +185,14 @@ def read_extr_and_intr(path):
     return cam_extrinsics, cam_intrinsics
 
 # new from corgs
-def create_rand_ply(path, num_pts=1000):
+def create_rand_ply(path, ply_path, num_pts=1000):
     """ 
     Generates random pcd, stores it in a ply file.
 
     Returns: path of ply file which stores the random point cloud.
     """
     print('Init random point cloud.')
-    ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+    # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
     bin_path = os.path.join(path, "sparse/0/points3D.bin")
     txt_path = os.path.join(path, "sparse/0/points3D.txt")
 
@@ -204,17 +211,18 @@ def create_rand_ply(path, num_pts=1000):
     print(f"Generating random point cloud ({num_pts})...")
     shs = np.random.random((num_pts, 3)) / 255.0
     storePly(ply_path, xyz, SH2RGB(shs) * 255)
-    
-    return ply_path
-    
+        
 # adapted from 3dgs + corgs
 # edits:
 #   randome ply instead of read Colmap
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
 def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0):
-        
-    ply_path = create_rand_ply(path, num_pts=1000)
+
+    ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
+    if not os.path.exists(ply_path):
+        print("Creating random.ply, will happen only the first time you open the scene.")
+        create_rand_ply(path, ply_path, num_pts=1000)
     try:
         pcd = fetchPly(ply_path)
     except:
@@ -267,13 +275,16 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
 
     train_cam_infos = [c for c in cam_infos if train_test_exp or not c.is_test]
     test_cam_infos = [c for c in cam_infos if c.is_test]
-
-    # sample corner
+    
+####### Sample #######
     n_views = 3
     if n_views > 0:
-        sampler = RandomSampler(3, train_cam_infos)
+        sampler = AngularSampler(n_views, train_cam_infos)
+        # sampler = RandomSampler(n_views, train_cam_infos)
+        # sampler = VisibilitySampler(n_views, train_cam_infos, cam_)
         train_cam_infos = sampler.sample()
         assert len(train_cam_infos) == n_views
+####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
