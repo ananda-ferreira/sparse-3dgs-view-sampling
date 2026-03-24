@@ -8,7 +8,7 @@ class Sampler:
     viewCount : int
     cam_infos : list
     cam_infos_ext : list
-    sparse_views: list[tuple[str]]
+    sparse_views: list[str]
 
     def __init__(self, viewCount: int, cam_infos: list[dict]):
         self.viewCount = viewCount
@@ -29,4 +29,7 @@ class Sampler:
         if views == None:
             views = self.sparse_views
         return [tuple([c["C"] for c in self.cam_infos_ext if c["img_name"] in vs]) for vs in views]
+    
+    def save_sparse_views(views, path):
         
+        return

@@ -5,8 +5,7 @@ from plyfile import PlyData, PlyElement
 import numpy as np
 
 from utils.sh_utils import SH2RGB
-from samplers import RandomSampler
-from samplers import AngularSampler
+from samplers import RandomSampler, AngularSampler, BaselineSampler, VisibilitySampler 
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 from scene.gaussian_model import BasicPointCloud
 
@@ -150,7 +149,6 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-
 ####### New / Edited #######
 # new from corgs
 def topk_(matrix, K, axis=1):
@@ -217,7 +215,8 @@ def create_rand_ply(path, ply_path, num_pts=1000):
 #   randome ply instead of read Colmap
 #   cam extr and intr moved to function
 #   sparse sample train_cam_infos
-def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0):
+#   n_views, sampler as new params
+def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0, sampler_name="random"):
 
     ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
     if not os.path.exists(ply_path):
@@ -279,11 +278,16 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
 ####### Sample #######
     if n_views > 0:
         print(f"number of views: {n_views}")
-        sampler = AngularSampler(n_views, train_cam_infos)
-        # sampler = RandomSampler(n_views, train_cam_infos)
-        # sampler = VisibilitySampler(n_views, train_cam_infos, cam_)
+        match sampler_name:
+            case "angular": sampler = AngularSampler(n_views, train_cam_infos)
+            case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
+            case "visibility": sampler = VisibilitySampler(n_views, train_cam_infos, cam_extrinsics)
+            case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         assert len(train_cam_infos) == n_views
+        
+    print("sampling successful")
+    sys.exit(0)
 ####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)

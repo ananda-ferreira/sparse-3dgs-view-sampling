@@ -1,25 +1,19 @@
 import os
-import numpy as np
 
+import numpy as np
 from samplers.utils_sparse import calc_pairwise_distances, farthest_point_sampling
 from samplers import Sampler
 
-# cam_infos needed for view dir calculation
-# cam_infos used for return
-class AngularSampler(Sampler):
+# copy of baselinesampler
+class DistanceSampler(Sampler):
 
-    pw_dist_dirs: np.ndarray
+    pw_dist_cs: np.ndarray
     max_baselines: list[dict]
 
-    def __init__(self, viewCount, cam_infos: list):
+    def __init__(self, viewCount: int, cam_infos: list):
         super().__init__(viewCount, cam_infos)
-        
-        view_dirs = self.view_dirs()
-        for i,c in enumerate(self.cam_infos_ext):
-            c["view_dir"] = view_dirs[i]
-
-        self.pw_dist_dirs = calc_pairwise_distances(view_dirs)
-        self.max_baselines = self.get_max_baselines(self.pw_dist_dirs)
+        self.pw_dist = calc_pairwise_distances(self.get_cs())
+        self.max_baselines = self.get_max_baselines(self.pw_dist)
 
     def sample(self, sampleCount = 1):
         if self.viewCount < 2:
@@ -29,17 +23,18 @@ class AngularSampler(Sampler):
         self.sparse_cs = self.get_sparse_cs()
 
         if self.viewCount >= 3:
+            print("greedy maximize minimum pairwise distance of camera centers")
             sparse_cs_init = list(self.sparse_cs[0])
             self.sparse_views = self.get_sparse_view_tuples(self.get_cs(), sparse_cs_init)
             self.sparse_cs = self.get_sparse_cs()
-            print(f"angular sparse views: {self.sparse_views}")
+
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
-    
+
     def get_sparse_view_tuples(self, cs, top2_cs):
         sparse_cs = farthest_point_sampling(self.viewCount, cs, top2_cs)
         sparse_cs_set = {tuple(sc) for sc in sparse_cs}
         sparse_views = [c["img_name"] for c in self.cam_infos_ext if tuple(c["C"]) in sparse_cs_set]
-        return sparse_views
+        return [tuple(sparse_views)]
     
     def get_sparse_view_pairs(self, pairCount = 1):
         """
@@ -62,9 +57,3 @@ class AngularSampler(Sampler):
                 "score": pairwise_dist[i, j]
             })
         return max_baselines
-    
-    def view_dirs(self):
-        forward_dir = np.array([0,0,-1])
-        Rs = np.array([c.R for c in self.cam_infos])
-        return Rs @ forward_dir
-        

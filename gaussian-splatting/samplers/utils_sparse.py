@@ -1,4 +1,3 @@
-import os
 import numpy as np
 
 def calc_pairwise_distances(points: list):
