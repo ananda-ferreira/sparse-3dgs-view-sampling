@@ -286,7 +286,7 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
             case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         sampler.save_sparse_views(model_path)
-        highlight_sparse_views(sampler.get_cs(), sampler.get_sparse_cs(), save_path=os.path.join(model_path, "cs_plot.jpg"))
+        # highlight_sparse_views(sampler.get_cs(), sampler.get_sparse_cs(), save_path=os.path.join(model_path, "cs_plot.jpg"))
         assert len(train_cam_infos) == n_views
         
     print("Sampling successful, exiting script!")
