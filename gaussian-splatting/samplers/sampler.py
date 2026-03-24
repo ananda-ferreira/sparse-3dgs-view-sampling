@@ -32,7 +32,7 @@ class Sampler:
             views = self.sparse_views
         return [tuple([c["C"] for c in self.cam_infos_ext if c["img_name"] in vs]) for vs in views]
     
-    def save_sparse_views(views, model_path):
+    def save_sparse_views(self, views, model_path):
         if not os.path.exists(model_path):
             return None
         file_path = os.path.join(model_path, "sparse_views")
