@@ -40,7 +40,7 @@ class AngularSampler(Sampler):
         sparse_cs = farthest_point_sampling(self.viewCount, cs, top2_cs)
         sparse_cs_set = {tuple(sc) for sc in sparse_cs}
         sparse_views = [c["img_name"] for c in self.cam_infos_ext if tuple(c["C"]) in sparse_cs_set]
-        return [tuple(sparse_views)]
+        return sparse_views
     
     def get_sparse_view_pairs(self, pairCount = 1):
         """
