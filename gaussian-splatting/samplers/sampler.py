@@ -26,10 +26,11 @@ class Sampler:
         """ Returns: a list of camera centers (3D np arrays) """
         return [c["C"] for c in self.cam_infos_ext]
     
-    def get_sparse_cs(self, views: list = None):
+    def get_sparse_cs(self, views = None):
         """ Returns: a list of tuples, where each tuple holds 2 camera centers (3D np arrays) corresponding to the pairs of images in views. """
         if views == None:
             views = self.sparse_views
+        print(f"views: {views}")
         return [c["C"] for c in self.cam_infos_ext if c["img_name"] in views] 
     
     def save_sparse_views(self, model_path):
