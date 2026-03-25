@@ -42,12 +42,12 @@ class BaselineSampler(Sampler):
         """
         Returns: a list of n tuples, where each tuple holds a pair of image names with a baseline among the top n. n == pairCount
         """
-        if pairCount > 1:
-            top_baselines = sorted(self.max_baselines, key= lambda x : x["score"], reverse=True)[:pairCount]
-            return [(pair["view1"], pair["view2"]) for pair in top_baselines] 
-        else: 
-            best_baseline = max(self.max_baselines, key= lambda x : x["score"])
-            return [(best_baseline["view1"], best_baseline["view2"])]
+        # if pairCount > 1:
+        #     top_baselines = sorted(self.max_baselines, key= lambda x : x["score"], reverse=True)[:pairCount]
+        #     return [(pair["view1"], pair["view2"]) for pair in top_baselines] 
+        # else: 
+        best_baseline = max(self.max_baselines, key= lambda x : x["score"])
+        return [best_baseline["view1"], best_baseline["view2"]]
     
     def get_max_baselines(self, pairwise_dist: np.ndarray):
         max_baselines = list()

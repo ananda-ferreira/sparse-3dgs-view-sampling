@@ -29,7 +29,7 @@ class AngularSampler(Sampler):
         self.sparse_cs = self.get_sparse_cs()
 
         if self.viewCount >= 3:
-            sparse_cs_init = list(self.sparse_cs[0])
+            sparse_cs_init = list(self.sparse_cs)
             self.sparse_views = self.get_sparse_view_tuples(self.get_cs(), sparse_cs_init)
             self.sparse_cs = self.get_sparse_cs()
             print(f"angular sparse views: {self.sparse_views}")
@@ -45,12 +45,12 @@ class AngularSampler(Sampler):
         """
         Returns: a list of n tuples, where each tuple holds a pair of image names with a baseline among the top n. n == pairCount
         """
-        if pairCount > 1:
-            top_baselines = sorted(self.max_baselines, key= lambda x : x["score"], reverse=True)[:pairCount]
-            return [(pair["view1"], pair["view2"]) for pair in top_baselines] 
-        else: 
-            best_baseline = max(self.max_baselines, key= lambda x : x["score"])
-            return [(best_baseline["view1"], best_baseline["view2"])]
+        # if pairCount > 1:
+        #     top_baselines = sorted(self.max_baselines, key= lambda x : x["score"], reverse=True)[:pairCount]
+        #     return [(pair["view1"], pair["view2"]) for pair in top_baselines] 
+        # else: 
+        best_baseline = max(self.max_baselines, key= lambda x : x["score"])
+        return [best_baseline["view1"], best_baseline["view2"]]
     
     def get_max_baselines(self, pairwise_dist: np.ndarray):
         max_baselines = list()
