@@ -35,8 +35,31 @@ class Sampler:
     def save_sparse_views(self, model_path):
         if not os.path.exists(model_path):
             return None
-        file_path = os.path.join(model_path, "sparse_views2.txt")
+        
+        file_path = os.path.join(model_path, "sparse_views.txt")
+        sparse_str, cs_str = "", "" 
+        cs = self.get_sparse_cs()
+
+        for i in range(0, self.viewCount):
+            sparse_str += f"{str(self.sparse_views[i])} "
+            cs_str += f"{str(cs[i])} "
+
         with open(file_path, 'w') as sparse_log_f:
-            sparse_log_f.write(str(self.sparse_views + '\n' + self.get_sparse_cs()))
-            # also save cam centers
-            return file_path
+            sparse_log_f.write(f"{sparse_str}'\n'"+ str(cs_str))
+        return file_path
+        
+    # # note: "output" needs to be the output directory
+    # def save_sparse_views(self, model_path):
+    #     if not os.path.exists(model_path):
+    #         return None
+        
+    #     output_path, id = model_path.split("output", 1)
+    #     file_path = os.path.join(output_path, "sparse_views.txt")
+    #     print(f"Path to sparse_views.txt: {file_path}")
+
+    #     with open(file_path, 'a') as sparse_log_f:
+    #         sparse_log_f.write(
+    #             id + '\n'
+    #             + f"{str(self.sparse_views[0])} {str(self.sparse_views[1])} {str(self.sparse_views[2])}'\n'"
+    #             + str(self.get_sparse_cs()))
+    #     return file_path
