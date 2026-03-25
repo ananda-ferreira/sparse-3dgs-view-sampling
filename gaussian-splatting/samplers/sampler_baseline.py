@@ -23,7 +23,7 @@ class BaselineSampler(Sampler):
         self.sparse_cs = self.get_sparse_cs()
 
         if self.viewCount >= 3:
-            sparse_cs_init = list(self.sparse_cs[0])
+            sparse_cs_init = list(self.sparse_cs)
             self.sparse_views = self.get_sparse_view_tuples(self.get_cs(), sparse_cs_init)
             self.sparse_cs = self.get_sparse_cs()
             print(f"baseline sparse views: {self.sparse_views}")
