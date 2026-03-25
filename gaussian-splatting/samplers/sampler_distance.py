@@ -1,6 +1,5 @@
-import os
 import numpy as np
-from samplers.utils_sampler import calc_pairwise_distances, farthest_point_sampling
+from samplers.utils_sampler import farthest_point_sampling
 from samplers import Sampler
 
 # cam_infos used for return

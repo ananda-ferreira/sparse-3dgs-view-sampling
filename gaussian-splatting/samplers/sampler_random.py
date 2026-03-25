@@ -1,5 +1,4 @@
 from random import sample
-
 from samplers import Sampler
 
 # cam_infos used for return

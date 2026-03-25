@@ -1,9 +1,8 @@
 import os
-
 import numpy as np
 
-# should take (train) cam_infos as input, making dataset_path and read_cam_infos() redundant
-# cs should be mapped to cam_infos in sampler, as params will be from og 3dgs without cs
+# takes train_cam_infos as input
+# cs are mapped to cam_infos in sampler
 # cam_infos needed for C calculation and creation of cam_infos_ext
 class Sampler:
     

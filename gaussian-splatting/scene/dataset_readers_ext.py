@@ -8,7 +8,6 @@ from utils.sh_utils import SH2RGB
 from samplers import RandomSampler, AngularSampler, BaselineSampler, VisibilitySampler 
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 from scene.gaussian_model import BasicPointCloud
-# from plots.plot import highlight_sparse_views
 
 class CameraInfo(NamedTuple):
     uid: int
@@ -286,11 +285,10 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
             case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         sampler.save_sparse_views(model_path)
-        # highlight_sparse_views(sampler.get_cs(), sampler.get_sparse_cs(), save_path=os.path.join(model_path, "cs_plot.jpg"))
         assert len(train_cam_infos) == n_views
-        
-    print("Sampling successful, exiting script!")
-    sys.exit(0)
+        print("Sampling successful!")
+    # print("Sampling successful, exiting script!")
+    # sys.exit(0)
 ####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)

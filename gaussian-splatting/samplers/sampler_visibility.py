@@ -1,7 +1,4 @@
-import os
-
 import numpy as np
-
 from samplers.utils_sampler import maximize_point_cloud_coverage
 from samplers import Sampler
 
