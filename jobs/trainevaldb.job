@@ -29,9 +29,9 @@ cd $SPARSE
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db-playroom-baseline-3/ \
+    -m $VGS/output/db-playroom-visibility-3/ \
     --n_views 3 \
-    --sampler "baseline" \
+    --sampler "visibility" \
     --eval
 # -d <path to depth maps> \
 
