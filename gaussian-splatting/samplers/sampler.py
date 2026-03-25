@@ -30,7 +30,7 @@ class Sampler:
         """ Returns: a list of tuples, where each tuple holds 2 camera centers (3D np arrays) corresponding to the pairs of images in views. """
         if views == None:
             views = self.sparse_views
-        return [c["C"] for c in self.cam_infos_ext if c["img_name"] in vs for vs in views]
+        return [c["C"] for c in self.cam_infos_ext if c["img_name"] in views]
     
     def save_sparse_views(self, model_path):
         if not os.path.exists(model_path):
