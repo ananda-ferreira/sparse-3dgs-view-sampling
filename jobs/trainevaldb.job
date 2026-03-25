@@ -33,15 +33,16 @@ python $VGS/train.py \
     --n_views 3 \
     --sampler "baseline" \
     --eval
+# -d <path to depth maps> \
 
-# # Generate renderings for trained model
-# python $VGS/render.py \
-#     -m $VGS/output/db-playroom-baseline-3/
+# Generate renderings for trained model
+python $VGS/render.py \
+    -m $VGS/output/db-playroom-baseline-3/
  
-# # Compute error metrics on renderings
-# python $VGS/metrics.py \
-#     -m $VGS/output/db-playroom-baseline-3/
+# Compute error metrics on renderings
+python $VGS/metrics.py \
+    -m $VGS/output/db-playroom-baseline-3/
 
-# nvidia-smi 
+nvidia-smi 
 
 ### final version ###

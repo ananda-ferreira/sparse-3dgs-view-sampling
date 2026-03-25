@@ -30,7 +30,6 @@ class Sampler:
         """ Returns: a list of tuples, where each tuple holds 2 camera centers (3D np arrays) corresponding to the pairs of images in views. """
         if views == None:
             views = self.sparse_views
-        print(f"views: {views}")
         return [c["C"] for c in self.cam_infos_ext if c["img_name"] in views] 
     
     def save_sparse_views(self, model_path):
@@ -38,9 +37,9 @@ class Sampler:
             return None
         
         file_path = os.path.join(model_path, "sparse_views.txt")
+        
         sparse_str, cs_str = "", "" 
         cs = self.get_sparse_cs()
-
         for i in range(0, self.viewCount):
             sparse_str += f"{str(self.sparse_views[i])} "
             cs_str += f"{str(cs[i])} "
@@ -49,18 +48,21 @@ class Sampler:
             sparse_log_f.write(f"{self.viewCount}\n{sparse_str}\n{str(cs_str)}")
         return file_path
         
-    # # note: "output" needs to be the output directory
-    # def save_sparse_views(self, model_path):
-    #     if not os.path.exists(model_path):
-    #         return None
+    # note: "output" needs to be the output directory
+    def save_sparse_vs_collected(self, model_path):
+        if not os.path.exists(model_path):
+            return None
         
-    #     output_path, id = model_path.split("output", 1)
-    #     file_path = os.path.join(output_path, "sparse_views.txt")
-    #     print(f"Path to sparse_views.txt: {file_path}")
+        output_path, id = model_path.split("output", 1)
+        file_path = os.path.join(output_path, "sparse_views.txt")
+        print(f"Path to sparse_views.txt: {file_path}")
 
-    #     with open(file_path, 'a') as sparse_log_f:
-    #         sparse_log_f.write(
-    #             id + '\n'
-    #             + f"{str(self.sparse_views[0])} {str(self.sparse_views[1])} {str(self.sparse_views[2])}'\n'"
-    #             + str(self.get_sparse_cs()))
-    #     return file_path
+        sparse_str, cs_str = "", "" 
+        cs = self.get_sparse_cs()
+        for i in range(0, self.viewCount):
+            sparse_str += f"{str(self.sparse_views[i])} "
+            cs_str += f"{str(cs[i])} "
+
+        with open(file_path, 'a') as sparse_log_f:
+            sparse_log_f.write(f"{id}\n{self.viewCount}\n{sparse_str}\n{str(cs_str)}")
+        return file_path

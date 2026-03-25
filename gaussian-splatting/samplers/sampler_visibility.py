@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from samplers.utils_sparse import maximize_point_cloud_coverage
+from samplers.utils_sampler import maximize_point_cloud_coverage
 from samplers import Sampler
 
 # extr needed for points coverage
@@ -32,7 +32,6 @@ class VisibilitySampler(Sampler):
         sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, cam_best_cover)
         
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_view_idxs]
-        self.sparse_cs = self.get_sparse_cs()
 
         print(f"visibility sparse views: {self.sparse_views}")
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
