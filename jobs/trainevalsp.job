@@ -1,16 +1,19 @@
 #!/bin/bash
-set -e # terminates if training fails, doesn't proceed with rendering or
 
 #SBATCH --job-name=trainevalsp      
-#SBATCH --output=trainevalsp.%j.out     # %j expands to jobId
-#SBATCH --error=trainevalsp.%j.err
-#SBATCH --array=0-35                    # 3 views * 4 samplers * 3 scenes = 36 configs
+#SBATCH --output=trainevalsp.%A_%a.out  # %A master job ID, %a task id
+#SBATCH --error=trainevalsp.%A_%a.err
+#SBATCH --array=0-1                    # 3 views * 4 samplers * 3 scenes = 36 configs
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
 #SBATCH --gres=gpu:rtx6000:1            # Vanilla 3DGS is trained on 1 only
 #SBATCH --mem=32G
 #SBATCH --time=24:00:00                 # enough if 15 min per train
+
+set -e # terminates if training fails, doesn't proceed with rendering or
+echo "Hello from task $SLURM_ARRAY_TASK_ID"
+exit 0
 
 module load GCC/12.3.0           
 module load CUDA/12.1.1
@@ -45,8 +48,8 @@ echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRA
 output=$VGS/output/${dataset}-${scene}-${sampler}-${view}/
 
 python "$VGS/train.py" \
-  --s "$SPARSE/data/$dataset/$scene/" \
-  --m "$output" \
+  -s "$SPARSE/data/$dataset/$scene/" \
+  -m "$output" \
   --n_views $view \
   --sampler $sampler \
   --eval
