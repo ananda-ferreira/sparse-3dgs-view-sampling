@@ -30,11 +30,11 @@ cd $SPARSE
 
 sampler="visibility"
 view=3
-output=$VGS/output/db-playroom-$sampler-$view-test/
+output=$VGS/output/dtu-scan8-$sampler-$view-test/
 
 # train model for db playroom
 python $VGS/train.py \
-    -s $SPARSE/data/db/playroom/ \
+    -s $SPARSE/data/dtu/scan8/ \
     -m $output \
     --n_views $view \
     --sampler $sampler \
