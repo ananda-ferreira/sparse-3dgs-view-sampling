@@ -52,7 +52,7 @@ python "$VGS/train.py" \
   --sampler $sampler \
   --eval \
   --disable_viewer \
-  -d "$$SPARSE/data/$dataset/$scene/depths" \
+  -d "$SPARSE/data/$dataset/$scene/depths" 
 
 # Generate renderings for trained model
 python "$VGS/render.py" \
