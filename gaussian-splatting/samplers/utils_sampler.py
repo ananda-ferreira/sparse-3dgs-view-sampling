@@ -44,7 +44,7 @@ def farthest_point_sampling(viewCount, points, sparse_points):
         sparse.append(points[max_idx])
     return sparse
 
-def maximize_point_cloud_coverage(viewCount, unique_pts, best_view_idx):
+def maximize_point_cloud_visibility(viewCount, unique_pts, best_view_idx):
     """
     Maximize coverage by finding the views that together cover most scene points. 
 

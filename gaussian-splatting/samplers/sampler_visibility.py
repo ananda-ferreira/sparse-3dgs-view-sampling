@@ -1,5 +1,5 @@
 import numpy as np
-from samplers.utils_sampler import maximize_point_cloud_coverage
+from samplers.utils_sampler import maximize_point_cloud_visibility
 from samplers import Sampler
 
 # extr needed for points coverage
@@ -24,7 +24,7 @@ class VisibilitySampler(Sampler):
             return None
         
         best_cam_idx = np.argmax(self.pts_shapes)
-        sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, best_cam_idx)
+        sparse_view_idxs = maximize_point_cloud_visibility(self.viewCount, self.unique_pts, best_cam_idx)
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_view_idxs]
 
         print(f"visibility sparse views: {self.sparse_views}")
@@ -32,7 +32,7 @@ class VisibilitySampler(Sampler):
     
     def _unique_pts(self, extr):
         unique_pts, shapes = [], []
-        for i, img in enumerate(extr):
+        for _, img in enumerate(extr):
             unique = np.unique([p for p in img.point3D_ids if p != -1])
             unique_pts.append(unique)
             shapes.append(unique.shape)
