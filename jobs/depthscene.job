@@ -34,7 +34,7 @@ cd $SPARSE/data/$dataset/$scene
 mkdir -p depths # -p creates if doesnt exist, without script breaks bec of set -e
 cd $VGS/Depth-Anything-V2  
 
-data=$VGS/data/$dataset/$scene
+data=$SPARSE/data/$dataset/$scene
 
 # train model for db playroom
 python $VGS/Depth-Anything-V2/run.py \
