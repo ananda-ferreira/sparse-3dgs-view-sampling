@@ -10,15 +10,11 @@ class VisibilitySampler(Sampler):
     unique_pts: list
     pts_shapes: np.ndarray
 
-    def __init__(self, viewCount, cam_infos, extr):
-        print(f"length of extrinsics: {len(extr)}. Should match length of cam_infos_ext")
-        print(f"length of cam_infos: {len(cam_infos)}. Should match length of cam_infos_ext")
+    def __init__(self, viewCount, cam_infos, extr: list):
         super().__init__(viewCount, cam_infos)
-        print(f"length cam_infos_ext: {len(self.cam_infos_ext)}")
-
         
         # sort extr by img name to match cam_infox_ext         
-        self.extr = sorted(extr.values(), key = lambda x: x.name)
+        self.extr = sorted(extr, key = lambda x: x.name)
 
         # get unique pts amd their shape per cam and add to cam_infos_ext
         self.unique_pts, self.pts_shapes = self._unique_pts(self.extr)
