@@ -44,7 +44,7 @@ python $VGS/Depth-Anything-V2/run.py \
     --img-path "$data/images" \
     --outdir "$data/depths"
 
-python utils/make_depth_scale.py \
+python $VGS/utils/make_depth_scale.py \
     --base_dir "$data/sparse/0" \
     --depths_dir "$data/depths"
 
