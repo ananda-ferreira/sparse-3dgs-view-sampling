@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=depthsscene            # Job name
-#SBATCH --output=depthsscene.%j.out       # Name of output file (%j expands to jobId)
-#SBATCH --error=depthsscene.%j.err
+#SBATCH --job-name=depthscene            # Job name
+#SBATCH --output=depthscene.%j.out       # Name of output file (%j expands to jobId)
+#SBATCH --error=depthscene.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 for VGS
 #SBATCH --partition=scavenge            # High performance compute nodes with GPUs
 #SBATCH --gres=gpu:1                    # VGS is trained on 1 only, gres=gpu:rtx6000:1

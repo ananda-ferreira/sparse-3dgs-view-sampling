@@ -185,11 +185,7 @@ def read_extr_and_intr(path):
 
 # new from corgs
 def create_rand_ply(path, ply_path, num_pts=1000):
-    """ 
-    Generates random pcd, stores it in a ply file.
-
-    Returns: path of ply file which stores the random point cloud.
-    """
+    """ Generates random pcd, stores it in a ply file. """
     print('Init random point cloud.')
     # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
     bin_path = os.path.join(path, "sparse/0/points3D.bin")
@@ -210,6 +206,7 @@ def create_rand_ply(path, ply_path, num_pts=1000):
     print(f"Generating random point cloud ({num_pts})...")
     shs = np.random.random((num_pts, 3)) / 255.0
     storePly(ply_path, xyz, SH2RGB(shs) * 255)
+    
         
 # adapted from 3dgs + corgs
 # edits:
