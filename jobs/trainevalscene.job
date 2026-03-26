@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevalsc      
-#SBATCH --output=trainevalsc.%A_%a.out  # %A master job ID, %a task id
-#SBATCH --error=trainevalsc.%A_%a.err
+#SBATCH --job-name=trainevalscene      
+#SBATCH --output=trainevalscene.%A_%a.out  # %A master job ID, %a task id
+#SBATCH --error=trainevalscene.%A_%a.err
 #SBATCH --array=0-11                    # 3 views * 4 samplers * 1 scene = 11 configs
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
