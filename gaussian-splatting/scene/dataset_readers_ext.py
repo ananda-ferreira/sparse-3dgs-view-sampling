@@ -282,7 +282,12 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
         match sampler_name:
             case "angular": sampler = AngularSampler(n_views, train_cam_infos)
             case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
-            case "visibility": sampler = VisibilitySampler(n_views, train_cam_infos, cam_extrinsics)
+            case "visibility": 
+                print(f"cam_extr: {cam_extrinsics.keys}")
+                # print(f"cam_extr: {cam_extrinsics.keys}")
+                train_extr = []
+                # train_extr = [e for e in cam_extrinsics if e["image_name"] in train_cam_infos[i] ]
+                sampler = VisibilitySampler(n_views, train_cam_infos, train_extr)
             case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         sampler.save_sparse_views(model_path)
