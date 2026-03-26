@@ -31,7 +31,7 @@ def farthest_point_sampling(viewCount, points, sparse_points):
     """
     sparse = sparse_points.copy()
     initalSparseCount = 2
-    # initalSparseCount = len(sparse) # or len(sparse[0]) ?
+    # initalSparseCount = len(sparse_points) # or len(sparse_points[0]) ?
     for _ in range(initalSparseCount, viewCount):
         # get min distances ; different than max dist based on current sparse points not pairwise dist
         min_dists = []
@@ -44,7 +44,7 @@ def farthest_point_sampling(viewCount, points, sparse_points):
         sparse.append(points[max_idx])
     return sparse
 
-def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
+def maximize_point_cloud_coverage(viewCount, unique_pts, best_view_idx):
     """
     Maximize coverage by finding the views that together cover most scene points. 
 
@@ -53,7 +53,7 @@ def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
         The number of views to sample.
     unique_pts: list of numpy.ndarray
         For each camera in the scene, a numpy array of unique 3d point ids that it covers.
-    best_view: int
+    best_view_idx: int
         Index of first view with highest coverage of points. 
 
     Returns:
@@ -63,18 +63,19 @@ def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
     if viewCount <= 0: 
         return []
     
-    views = [best_view]
-    views_pts = unique_pts[best_view]
+    view_ixds = [best_view_idx]
+    views_pts = unique_pts[best_view_idx]
 
     for _ in range(1, viewCount):
-        new = -1
+        new_idx = -1
         new_pts = np.array([])
+        print(f"length of unique pts: {len(unique_pts)}. Should match length of cam_infos_ext")
         for i in range(0, len(unique_pts)):
-            if i in views: continue
+            if i in view_ixds: continue
             current_pts = np.union1d(views_pts, unique_pts[i])
             if current_pts.shape > new_pts.shape:
-                new = i
+                new_idx = i
                 new_pts = current_pts
-        views.append(np.int64(new))
+        view_ixds.append(np.int64(new_idx))
         views_pts = new_pts
-    return views
+    return view_ixds

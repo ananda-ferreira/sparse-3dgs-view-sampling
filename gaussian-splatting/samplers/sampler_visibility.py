@@ -15,20 +15,21 @@ class VisibilitySampler(Sampler):
         
         # sort extr by img name to match cam_infox_ext         
         self.extr = sorted(extr.values(), key = lambda x: x.name)
-        
+
         # get unique pts amd their shape per cam and add to cam_infos_ext
         self.unique_pts, self.pts_shapes = self._unique_pts(self.extr)
-        for i,c in enumerate(self.cam_infos_ext):
-            c["unique_pts"] = self.unique_pts[i]
-            c["pts_shape"] = self.pts_shapes[i]
+        # for i,c in enumerate(self.cam_infos_ext):
+        #     c["unique_pts"] = self.unique_pts[i]
+        #     c["pts_shape"] = self.pts_shapes[i]
 
     def sample(self):
         if self.viewCount < 2:
             return None
-        cam_best_cover = np.argmax(self.pts_shapes)
-        sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, cam_best_cover)
-        print(f"sparse_view_idxs: {sparse_view_idxs}")
+        
+        best_cam_idx = np.argmax(self.pts_shapes)
+        sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, best_cam_idx)
         print(f"length cam_infos_ext: {len(self.cam_infos_ext)}")
+        print(f"sparse_view_idxs: {sparse_view_idxs}")
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_view_idxs]
 
         print(f"visibility sparse views: {self.sparse_views}")
