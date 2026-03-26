@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #SBATCH --job-name=trainevaldb       # Job name
-#SBATCH --output=trainevaldb.%j.out  # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevaldb.%j.err
+#SBATCH --output=trainevasp.%j_11.out  # Name of output file (%j expands to jobId)
+#SBATCH --error=trainevalsp.%j_11.err
 #SBATCH --cpus-per-task=4        # Schedule 4 for VGS
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
-#SBATCH --gres=gpu:1                # VGS is trained on 1 only, gres=gpu:rtx6000:1
-# #SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
-# #SBATCH --gres=gpu:rtx6000:1                # VGS is trained on 1 only
+# #SBATCH --gres=gpu:1                # VGS is trained on 1 only, gres=gpu:rtx6000:1
+#SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
+#SBATCH --gres=gpu:rtx6000:1                # VGS is trained on 1 only
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00          # 1 hours should be enough for train on 1 scene, trained < 20 min
 
@@ -31,20 +31,20 @@ cd $SPARSE
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db-playroom-visibility-6-debug/ \
+    -m $VGS/output/db-playroom-visibility-6/ \
     --n_views 6 \
     --sampler "visibility" \
     --eval
 # -d <path to depth maps> \
 
-# # Generate renderings for trained model
-# python $VGS/render.py \
-#     -m $VGS/output/db-playroom-baseline-3/
+# Generate renderings for trained model
+python $VGS/render.py \
+    -m $VGS/output/db-playroom-baseline-3/
  
-# # Compute error metrics on renderings
-# python $VGS/metrics.py \
-#     -m $VGS/output/db-playroom-baseline-3/
+# Compute error metrics on renderings
+python $VGS/metrics.py \
+    -m $VGS/output/db-playroom-baseline-3/
 
-# nvidia-smi 
+nvidia-smi 
 
 ### final version ###

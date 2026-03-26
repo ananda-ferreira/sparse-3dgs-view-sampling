@@ -291,8 +291,8 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
         sampler.save_cam_centers(path)
         assert len(train_cam_infos) == n_views
         print("Sampling successful!")
-    print("Exiting script!")
-    sys.exit(0)
+    # print("Exiting script!")
+    # sys.exit(0)
 ####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
