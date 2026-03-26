@@ -11,7 +11,11 @@ class VisibilitySampler(Sampler):
     pts_shapes: np.ndarray
 
     def __init__(self, viewCount, cam_infos, extr):
+        print(f"length of extrinsics: {len(extr)}. Should match length of cam_infos_ext")
+        print(f"length of cam_infos: {len(cam_infos)}. Should match length of cam_infos_ext")
         super().__init__(viewCount, cam_infos)
+        print(f"length cam_infos_ext: {len(self.cam_infos_ext)}")
+
         
         # sort extr by img name to match cam_infox_ext         
         self.extr = sorted(extr.values(), key = lambda x: x.name)
@@ -28,7 +32,6 @@ class VisibilitySampler(Sampler):
         
         best_cam_idx = np.argmax(self.pts_shapes)
         sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, best_cam_idx)
-        print(f"length cam_infos_ext: {len(self.cam_infos_ext)}")
         print(f"sparse_view_idxs: {sparse_view_idxs}")
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_view_idxs]
 
