@@ -5,3 +5,4 @@ data/
 output/
 pretrained/
 gaussian-splatting/pretrained/
+gaussian-splatting/Depth-Anything-V2/checkpoints
