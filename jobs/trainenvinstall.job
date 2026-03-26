@@ -21,6 +21,12 @@ conda install --quiet --yes -c conda-forge plyfile tqdm
 conda install -c conda-forge opencv=4.10            
 # pip install joblib                                            # not done yet;
 
+# IT 4: matplotlib for depthanything
+conda install -c conda-forge matplotlib
+
+# IT 5: joblib for depthanything
+conda install -c conda-forge joblib
+
 pip install --no-cache-dir torch==2.1.2+cu121 \
     torchvision==0.16.2+cu121 \
     torchaudio==2.1.2 \
