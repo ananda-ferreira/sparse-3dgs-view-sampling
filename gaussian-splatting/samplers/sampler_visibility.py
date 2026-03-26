@@ -27,7 +27,8 @@ class VisibilitySampler(Sampler):
             return None
         cam_best_cover = np.argmax(self.pts_shapes)
         sparse_view_idxs = maximize_point_cloud_coverage(self.viewCount, self.unique_pts, cam_best_cover)
-        
+        print(f"sparse_view_idxs: {sparse_view_idxs}")
+        print(f"length cam_infos_ext: {len(self.cam_infos_ext)}")
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_view_idxs]
 
         print(f"visibility sparse views: {self.sparse_views}")

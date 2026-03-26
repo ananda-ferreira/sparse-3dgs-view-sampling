@@ -10,6 +10,7 @@
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00          # 1 hours should be enough for train on 1 scene, trained < 20 min
 
+set -e # terminates if training fails, doesn't proceed with rendering or
 
 module load GCC/12.3.0           
 module load CUDA/12.1.1
@@ -29,8 +30,8 @@ cd $SPARSE
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db-playroom-visibility-3/ \
-    --n_views 3 \
+    -m $VGS/output/db-playroom-visibility-6-debug/ \
+    --n_views 6 \
     --sampler "visibility" \
     --eval
 # -d <path to depth maps> \

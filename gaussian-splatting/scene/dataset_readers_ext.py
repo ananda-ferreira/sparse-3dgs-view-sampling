@@ -9,6 +9,7 @@ from samplers import RandomSampler, AngularSampler, BaselineSampler, VisibilityS
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
 from scene.gaussian_model import BasicPointCloud
 
+## code duplication from 3dgs
 class CameraInfo(NamedTuple):
     uid: int
     R: np.array
@@ -285,10 +286,11 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
             case _: sampler = RandomSampler(n_views, train_cam_infos)
         train_cam_infos = sampler.sample()
         sampler.save_sparse_views(model_path)
+        sampler.save_cam_centers(path)
         assert len(train_cam_infos) == n_views
         print("Sampling successful!")
-    # print("Sampling successful, exiting script!")
-    # sys.exit(0)
+    print("Exiting script!")
+    sys.exit(0)
 ####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)

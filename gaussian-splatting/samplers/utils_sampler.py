@@ -54,7 +54,7 @@ def maximize_point_cloud_coverage(viewCount, unique_pts, best_view):
     unique_pts: list of numpy.ndarray
         For each camera in the scene, a numpy array of unique 3d point ids that it covers.
     best_view: int
-        Index of irst view with highest coverage of points. 
+        Index of first view with highest coverage of points. 
 
     Returns:
     views: list[int]

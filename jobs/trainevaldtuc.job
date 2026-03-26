@@ -24,8 +24,8 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 
 # train model for dtu_corgs train
 python $VGS/train.py \
-    -s $SPARSE/data/dtu_corgs/scan8/ \
-    -m $VGS/output/dtu_corgs/scan8/ \
+    -s $SPARSE/data/dtu/scan8/ \
+    -m $VGS/output/dtu/scan8/ \
     --eval
 
 # Generate renderings for trained model
