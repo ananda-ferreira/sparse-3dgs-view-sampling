@@ -30,7 +30,7 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
 # change into project root
-cd $VGS/data/$dataset/$scene
+cd $SPARSE/data/$dataset/$scene
 mkdir -p depths # -p creates if doesnt exist, without script breaks bec of set -e
 cd $SPARSE  
 
