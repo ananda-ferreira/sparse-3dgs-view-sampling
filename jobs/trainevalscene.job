@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevalsp      
-#SBATCH --output=trainevalsp.%A_%a.out  # %A master job ID, %a task id
-#SBATCH --error=trainevalsp.%A_%a.err
-#SBATCH --array=0-35                    # 3 views * 4 samplers * 3 scenes = 36 configs
+#SBATCH --job-name=trainevalsc      
+#SBATCH --output=trainevalsc.%A_%a.out  # %A master job ID, %a task id
+#SBATCH --error=trainevalsc.%A_%a.err
+#SBATCH --array=0-11                    # 3 views * 4 samplers * 1 scene = 11 configs
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
@@ -25,19 +25,18 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
+# default scene
+dataset=${dataset:-db}
+scene=${scene:-playroom}
+
 # config arrays
 views=(2 4 6)
 samplers=(random baseline angular visibility)
-datasets=(db tandt dtu)
-scenes=(playroom train scan8)
 
 # mapping
-dataset_idx=$((SLURM_ARRAY_TASK_ID / 12))
-view_idx=$(((SLURM_ARRAY_TASK_ID % 12) / 4))
+view_idx=$((SLURM_ARRAY_TASK_ID / 4))
 sampler_idx=$((SLURM_ARRAY_TASK_ID % 4))
 
-dataset=${datasets[$dataset_idx]}
-scene=${scenes[$dataset_idx]}
 view=${views[$view_idx]}
 sampler=${samplers[$sampler_idx]}
 
@@ -51,6 +50,7 @@ python "$VGS/train.py" \
   --n_views $view \
   --sampler $sampler \
   --eval
+  # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
 # Generate renderings for trained model
 python "$VGS/render.py" \

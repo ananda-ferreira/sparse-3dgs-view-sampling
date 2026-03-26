@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaldb          # Job name
-#SBATCH --output=trainevalsp.%j_11.out  # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevalsp.%j_11.err
+#SBATCH --job-name=trainevaltest        # Job name
+#SBATCH --output=trainevaltest.%j.out   # Name of output file (%j expands to jobId)
+#SBATCH --error=trainevaltest.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 for VGS
 #SBATCH --partition=scavenge            # High performance compute nodes with GPUs
 # #SBATCH --gres=gpu:1                  # VGS is trained on 1 only, gres=gpu:rtx6000:1
@@ -28,22 +28,24 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 # change into project root, for hard-coded test March 20th
 cd $SPARSE  
 
+output=$VGS/output/db-playroom-visibility-6/
+
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
-    -m $VGS/output/db-playroom-visibility-6/ \
+    -m $output \
     --n_views 6 \
     --sampler "visibility" \
     --eval
-# -d <path to depth maps> \
+    # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
 # Generate renderings for trained model
 python $VGS/render.py \
-    -m $VGS/output/db-playroom-baseline-3/
+    -m $output
  
 # Compute error metrics on renderings
 python $VGS/metrics.py \
-    -m $VGS/output/db-playroom-baseline-3/
+    -m $output
 
 nvidia-smi 
 
