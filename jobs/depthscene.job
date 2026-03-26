@@ -44,8 +44,10 @@ python $VGS/Depth-Anything-V2/run.py \
     --img-path "$data/images" \
     --outdir "$data/depths"
 
+cd $SPARSE
+
 python $VGS/utils/make_depth_scale.py \
-    --base_dir "$data/sparse/0" \
+    --base_dir "$data" \
     --depths_dir "$data/depths"
 
 nvidia-smi 
