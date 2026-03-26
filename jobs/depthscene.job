@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#SBATCH --job-name=depthsscene            # Job name
+#SBATCH --output=depthsscene.%j.out       # Name of output file (%j expands to jobId)
+#SBATCH --error=depthsscene.%j.err
+#SBATCH --cpus-per-task=4               # Schedule 4 for VGS
+#SBATCH --partition=scavenge            # High performance compute nodes with GPUs
+#SBATCH --gres=gpu:1                    # VGS is trained on 1 only, gres=gpu:rtx6000:1
+# #SBATCH --nodelist=cn10               # closest to A6000 from vanilla VGS?
+# #SBATCH --gres=gpu:rtx6000:1          # VGS is trained on 1 only
+#SBATCH --mem=32G
+#SBATCH --time=04:00:00                 # 1 hours should be enough for train on 1 scene, trained < 20 min
+
+set -e # terminates if a script fails
+
+# read arguments
+dataset=$1
+scene=$2
+
+module load GCC/12.3.0           
+module load CUDA/12.1.1
+module load Anaconda3/2025.06-1 
+
+SPARSE=/home/anaf/sparse-3dgs
+VGS=$SPARSE/gaussian-splatting
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs) + activate env
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
+
+# change into project root
+cd $VGS/data/$dataset/$scene
+mkdir -p depths # -p creates if doesnt exist, without script breaks bec of set -e
+cd $SPARSE  
+
+data=$VGS/data/$dataset/$scene
+
+# train model for db playroom
+python $VGS/Depth-Anything-V2/run.py \
+    --encoder vitl \
+    --pred-only \
+    --grayscale \
+    --img-path "$data/images" \
+    --outdir "$data/depths"
+
+python utils/make_depth_scale.py \
+    --base_dir "$data/sparse/0" \
+    --depths_dir "$data/depths"
+
+nvidia-smi 
+
+### final version ###

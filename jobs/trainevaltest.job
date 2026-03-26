@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaltest        # Job name
-#SBATCH --output=trainevaltest.%j.out   # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevaltest.%j.err
+#SBATCH --job-name=evaldbvis6        # Job name
+#SBATCH --output=evaldbvis6.%j.out   # Name of output file (%j expands to jobId)
+#SBATCH --error=evaldbvis6.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 for VGS
 #SBATCH --partition=scavenge            # High performance compute nodes with GPUs
 # #SBATCH --gres=gpu:1                  # VGS is trained on 1 only, gres=gpu:rtx6000:1
@@ -30,14 +30,14 @@ cd $SPARSE
 
 output=$VGS/output/db-playroom-visibility-6/
 
-# train model for db playroom
-python $VGS/train.py \
-    -s $SPARSE/data/db/playroom/ \
-    -m $output \
-    --n_views 6 \
-    --sampler "visibility" \
-    --eval
-    # -d "$$SPARSE/data/$dataset/$scene/depths" \
+# # train model for db playroom
+# python $VGS/train.py \
+#     -s $SPARSE/data/db/playroom/ \
+#     -m $output \
+#     --n_views 6 \
+#     --sampler "visibility" \
+#     --eval
+#     # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
 # Generate renderings for trained model
 python $VGS/render.py \
