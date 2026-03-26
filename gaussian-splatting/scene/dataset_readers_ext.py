@@ -284,10 +284,10 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
             case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
             case "visibility": 
                 train_names = [c.image_name for c in train_cam_infos]
-                
-                train_extr = [e for e in cam_extrinsics if e.name in train_names]
+
+                train_extr = [e for i, e in cam_extrinsics if e.name in train_names]
                 print(f"train_extr sampled by train names: {len(train_extr)}")
-                train_extr = [e for e in cam_extrinsics if e.name not in test_cam_names_list]
+                train_extr = [e for i, e in cam_extrinsics if e.name not in test_cam_names_list]
                 print(f"train_extr sampled by test names: {len(train_extr)}")
 
                 sampler = VisibilitySampler(n_views, train_cam_infos, train_extr)
