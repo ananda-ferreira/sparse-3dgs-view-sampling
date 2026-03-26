@@ -28,17 +28,18 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 # change into project root, for hard-coded test March 20th
 cd $SPARSE  
 
-output=$VGS/output/db-playroom-visibility-6/
+sampler="visibility"
+view=3
+output=$VGS/output/db-playroom-$sampler-$view-test/
 
 # train model for db playroom
 python $VGS/train.py \
     -s $SPARSE/data/db/playroom/ \
     -m $output \
-    --n_views 6 \
-    --sampler "visibility" \
+    --n_views $view \
+    --sampler $sampler \
     --eval \
-    --ip none \
-    --port 0
+    --disable_viewer
     # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
 # Generate renderings for trained model
