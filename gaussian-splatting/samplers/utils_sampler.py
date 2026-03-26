@@ -66,10 +66,10 @@ def maximize_point_cloud_coverage(viewCount, unique_pts, best_view_idx):
     view_ixds = [best_view_idx]
     views_pts = unique_pts[best_view_idx]
 
+    print(f"length of unique pts: {len(unique_pts)}. Should match length of cam_infos_ext")
     for _ in range(1, viewCount):
         new_idx = -1
         new_pts = np.array([])
-        print(f"length of unique pts: {len(unique_pts)}. Should match length of cam_infos_ext")
         for i in range(0, len(unique_pts)):
             if i in view_ixds: continue
             current_pts = np.union1d(views_pts, unique_pts[i])

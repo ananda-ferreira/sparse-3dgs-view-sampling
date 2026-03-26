@@ -36,6 +36,7 @@ class VisibilitySampler(Sampler):
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
     
     def _unique_pts(self, extr):
+        print(f"length of extrinsics: {len(extr)}. Should match length of cam_infos_ext")
         unique_pts, shapes = [], []
         for i, img in enumerate(extr):
             unique = np.unique([p for p in img.point3D_ids if p != -1])
