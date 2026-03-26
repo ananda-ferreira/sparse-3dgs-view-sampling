@@ -50,7 +50,8 @@ python "$VGS/train.py" \
   -m "$output" \
   --n_views $view \
   --sampler $sampler \
-  --eval
+  --eval \
+  --ip none
   # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
 # Generate renderings for trained model
