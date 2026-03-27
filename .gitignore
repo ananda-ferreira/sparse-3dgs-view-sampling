@@ -2,7 +2,9 @@
 **/__pycache__/
 
 data/
-output/
+# output/
+# output-depth/
+**/output*/
 pretrained/
 gaussian-splatting/pretrained/
 gaussian-splatting/Depth-Anything-V2/checkpoints
