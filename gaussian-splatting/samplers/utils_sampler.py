@@ -1,25 +1,19 @@
 import numpy as np
 
-# following github: uni excercise
+# following github: lecture excercise (instead of scipy's cdist)
 def calc_pairwise_distances(points: list):
     pts = np.array(points)
     # broadcasting: None inserts a new axis, to get a N,N,3 matrix (for pts.shape = N,3)
     diff = pts[:, None, :] - pts[None, :, :]
-    # L2 norm for euclidean distance, axis -1 for last axis = xyz vectors
-    out = np.linalg.norm(diff, axis=-1) # before I had 1 which is wrong
-    print(f"euclid dist matrix ax -1: {out}")
+    # L2 norm for euclidean distance, axis -1 for last axis => xyz vectors
+    out = np.linalg.norm(diff, axis=-1) # before it was 1, which is wrong
     return out
-
-# def calc_pairwise_distances(points: list):
-#     # this can be improved by avoiding the squareroot computation of euclidean distance
-#     pts = np.array(points)
-#     return cdist(pts, pts, 'euclidean')
 
 def euclidean_dist(c, sparse_cs):
     # sqrt computation unnecessary 
     return np.sum((c - sparse_cs) ** 2, axis=1)
 
-# following medium post
+# following medium post;
 def farthest_point_sampling(viewCount, points, sparse_points):
     """
     Sample n points from input cam center or view direction points using Farthest Point Sampling. n = viewCount
