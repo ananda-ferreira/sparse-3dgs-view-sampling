@@ -43,19 +43,22 @@ def farthest_point_sampling(viewCount, points, sparse_points):
         The sampled pointcloud data, a numpy array of shape (viewCount, D).
     """
     sparse = sparse_points.copy()
-    initalSparseCount = 2
-    # initalSparseCount = len(sparse_points) # or len(sparse_points[0]) ?
+    sparse_idxs = []
+    initalSparseCount = 2 # len(sparse_points)
+
     for _ in range(initalSparseCount, viewCount):
-        # get min distances ; different than max dist based on current sparse points not pairwise dist
+        # for each point 1. track how close this point is to the current sparse points. 2. only save the distance to the closest point.
         min_dists = []
         for c in points: 
             dists = euclidean_dist(c, sparse) # distances from each points to the already selected sparse views!
             min_dists.append(np.min(dists))
 
-        # get points of max distance to current sparse
+        # get the point that is furtherst (has the max min-distance) to the current sparse points
         max_idx = np.argmax(min_dists)
+
         sparse.append(points[max_idx])
-    return sparse
+        sparse_idxs.append(max_idx)
+    return sparse_idxs
 
 def maximize_point_cloud_visibility(viewCount, unique_pts, best_view_idx):
     """
