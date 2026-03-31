@@ -274,31 +274,22 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
     test_cam_infos = [c for c in cam_infos if c.is_test]
     
 ####### Sample #######
-    # if n_views > 0:
-    #     print(f"Sampling {n_views} views with {sampler_name} sampler.")
-    #     match sampler_name:
-    #         case "angular": sampler = AngularSampler(n_views, train_cam_infos)
-    #         case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
-    #         case "visibility": 
-    #             train_cam_extr = [e for _, e in cam_extrinsics.items() if e.name not in test_cam_names_list]
-    #             sampler = VisibilitySampler(n_views, train_cam_infos, train_cam_extr)
-    #         case _: sampler = RandomSampler(n_views, train_cam_infos)
-    #     train_cam_infos = sampler.sample()
-    #     sampler.save_sparse_views(model_path)
-    #     sampler.save_cam_centers(path)
-    #     assert len(train_cam_infos) == n_views
-    #     print("Sampling successful!")
-    print("\nBASELINE SAMPLER")
-    sampler1 = BaselineSampler(n_views, train_cam_infos)
-    sampler1.sample()
-    print("\nANGULAR SAMPLER")
-    sampler2 = AngularSampler(n_views, train_cam_infos)
-    sampler2.sample()
-    print("\nTEST VIEWS")
-    for i in test_cam_infos: print(f"{i.image_name}")
-    print("Testing successful!")
-    print("Exiting script!")
-    sys.exit(0)
+    if n_views > 0:
+        print(f"Sampling {n_views} views with {sampler_name} sampler.")
+        match sampler_name:
+            case "angular": sampler = AngularSampler(n_views, train_cam_infos)
+            case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
+            case "visibility": 
+                train_cam_extr = [e for _, e in cam_extrinsics.items() if e.name not in test_cam_names_list]
+                sampler = VisibilitySampler(n_views, train_cam_infos, train_cam_extr)
+            case _: sampler = RandomSampler(n_views, train_cam_infos)
+        train_cam_infos = sampler.sample()
+        sampler.save_sparse_views(model_path)
+        sampler.save_cam_centers(path)
+        assert len(train_cam_infos) == n_views
+        print("Sampling successful!")
+    # print("Exiting script!")
+    # sys.exit(0)
 ####### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
