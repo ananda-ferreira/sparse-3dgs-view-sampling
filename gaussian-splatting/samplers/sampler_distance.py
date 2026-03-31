@@ -19,17 +19,12 @@ class DistanceSampler(Sampler):
         print(f"best 2 views: {self.sparse_views}")
         if self.viewCount >= 3:
             sparse_cs_init = self.get_sparse_cs()
-            sparse_idxs = self.calc_sparse_views(self.get_cs(), sparse_cs_init)
-            new_sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_idxs]
+            new_sparse_idxs = farthest_point_sampling(self.viewCount, self.get_cs(), sparse_cs_init)
+            new_sparse_views = [self.cam_infos_ext[i]["img_name"] for i in new_sparse_idxs]
             self.sparse_views.extend(new_sparse_views)
         print(f"distance sparse views:")
         for i in self.sparse_views: print(f"{i}")
         return [c for c in self.cam_infos if c.image_name in self.sparse_views]
-    
-    def calc_sparse_views(self, cs, top2_cs):
-        return farthest_point_sampling(self.viewCount, cs, top2_cs)
-        # sparse_cs_set = {tuple(sc) for sc in sparse_cs} # tuples are hashable, lists not; set is faster for lookup
-        # return [c["img_name"] for c in self.cam_infos_ext if tuple(c["C"]) in sparse_cs_set]
 
     # max_baselines property not needed
     # refactor dict maybe not necessary
@@ -42,6 +37,8 @@ class DistanceSampler(Sampler):
                 "view2": self.cam_infos_ext[j]["img_name"], 
                 "score": pairwise_dist[i, j]
             })
+        test_sorted = sorted(max_baselines, key= lambda x : x["score"], reverse=True)[:5]
+        print(f"max baselines: {test_sorted}")
         best_baseline = max(max_baselines, key= lambda x : x["score"])
         return [best_baseline["view1"], best_baseline["view2"]]
     
