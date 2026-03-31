@@ -38,7 +38,7 @@ class DistanceSampler(Sampler):
                 "score": pairwise_dist[i, j]
             })
         test_sorted = sorted(max_baselines, key= lambda x : x["score"], reverse=True)[:10]
-        print(f"max baselines: {test_sorted}")
+        print(f"top 10 max baselines:")
         for i in test_sorted: print(f"{i}")
         best_baseline = max(max_baselines, key= lambda x : x["score"])
         return [best_baseline["view1"], best_baseline["view2"]]
