@@ -1,8 +1,19 @@
 import numpy as np
 
+# following github: uni excercise
 def calc_pairwise_distances(points: list):
     pts = np.array(points)
-    return np.linalg.norm(pts[:, None, :] - pts[None, :, :], axis=1)
+    # broadcasting: None inserts a new axis, to get a N,N,3 matrix (for pts.shape = N,3)
+    diff = pts[:, None, :] - pts[None, :, :]
+    # L2 norm for euclidean distance, axis -1 for last axis = xyz vectors
+    out = np.linalg.norm(diff, axis=-1) 
+    print(f"euclid dist matrix: {out}")
+    return out
+
+# def calc_pairwise_distances(points: list):
+#     pts = np.array(points)
+#     # None inserts another axis, to get a N,N,3 matrix, for pts.shape = N,3
+#     return np.linalg.norm(pts[:, None, :] - pts[None, :, :], axis=1) 
 
 # def calc_pairwise_distances(points: list):
 #     # this can be improved by avoiding the squareroot computation of euclidean distance

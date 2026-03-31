@@ -28,9 +28,9 @@ conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs
 # change into project root, for hard-coded test March 20th
 cd $SPARSE  
 
-sampler="visibility"
-view=3
-output=$VGS/output/dtu-scan8-$sampler-$view-test/
+sampler="baseline"
+view=9
+output=$VGS/output-test/dtu-scan8-$sampler-$view-norm-1/
 
 # train model for db playroom
 python $VGS/train.py \
