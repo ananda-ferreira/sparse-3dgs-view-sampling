@@ -8,4 +8,4 @@ class BaselineSampler(DistanceSampler):
         super().__init__(viewCount, cam_infos)
         
         self.pw_dist = calc_pairwise_distances(self.get_cs())
-        self.max_baselines = self.get_max_baselines(self.pw_dist)
+        # self.max_baselines = self.get_max_baselines(self.pw_dist)

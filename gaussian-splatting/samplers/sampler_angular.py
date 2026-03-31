@@ -14,7 +14,7 @@ class AngularSampler(DistanceSampler):
             c["view_dir"] = view_dirs[i]
 
         self.pw_dist = calc_pairwise_distances(view_dirs)
-        self.max_baselines = self.get_max_baselines(self.pw_dist)
+        # self.max_baselines = self.get_max_baselines(self.pw_dist)
 
     def view_dirs(self):
         forward_dir = np.array([0,0,-1])
