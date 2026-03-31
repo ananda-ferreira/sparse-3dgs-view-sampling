@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#SBATCH --job-name=trainevaldepthall2      
+#SBATCH --output=trainevaldepthall2.%A_%a.out  # %A master job ID, %a task id
+#SBATCH --error=trainevaldepthall2.%A_%a.err
+#SBATCH --array=0-47                    # 3 views * 4 samplers * 4 scenes = 48 configs
+#SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
+#SBATCH --partition=scavenge            # needed for rtx6000
+#SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
+#SBATCH --gres=gpu:rtx6000:1            # Vanilla 3DGS is trained on 1 only
+#SBATCH --mem=32G
+#SBATCH --time=24:00:00                 # enough if 15 min per train
+
+set -e # terminates if training fails, doesn't proceed with rendering or
+
+module load GCC/12.3.0           
+module load CUDA/12.1.1
+module load Anaconda3/2025.06-1 
+
+SPARSE=/home/anaf/sparse-3dgs
+VGS=$SPARSE/gaussian-splatting
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs) + activate env
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
+
+# config arrays
+views=(2 4 6)
+samplers=(random baseline angular visibility)
+datasets=(db tandt dtu dtu)
+scenes=(drjohnson truck scan40 scan63)
+
+# mapping
+dataset_idx=$((SLURM_ARRAY_TASK_ID / 12))
+view_idx=$(((SLURM_ARRAY_TASK_ID % 12) / 4))
+sampler_idx=$((SLURM_ARRAY_TASK_ID % 4))
+
+dataset=${datasets[$dataset_idx]}
+scene=${scenes[$dataset_idx]}
+view=${views[$view_idx]}
+sampler=${samplers[$sampler_idx]}
+
+echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
+
+output=$VGS/output-depth/${dataset}-${scene}-${sampler}-${view}/
+
+python "$VGS/train.py" \
+  -s "$SPARSE/data/$dataset/$scene/" \
+  -m "$output" \
+  --n_views $view \
+  --sampler $sampler \
+  --eval \
+  --disable_viewer \
+  -d "$SPARSE/data/$dataset/$scene/depths" 
+
+# Generate renderings for trained model
+python "$VGS/render.py" \
+  -m "$output"
+ 
+# Compute error metrics on renderings
+python "$VGS/metrics.py" \
+  -m "$output"
+
+nvidia-smi 
+
