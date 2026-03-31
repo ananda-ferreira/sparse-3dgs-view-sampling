@@ -37,8 +37,9 @@ class DistanceSampler(Sampler):
                 "view2": self.cam_infos_ext[j]["img_name"], 
                 "score": pairwise_dist[i, j]
             })
-        test_sorted = sorted(max_baselines, key= lambda x : x["score"], reverse=True)[:5]
+        test_sorted = sorted(max_baselines, key= lambda x : x["score"], reverse=True)[:10]
         print(f"max baselines: {test_sorted}")
+        for i in test_sorted: print(f"{i}")
         best_baseline = max(max_baselines, key= lambda x : x["score"])
         return [best_baseline["view1"], best_baseline["view2"]]
     
