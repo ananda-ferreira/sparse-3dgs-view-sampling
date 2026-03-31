@@ -3,7 +3,7 @@
 #SBATCH --job-name=depthall            # Job name
 #SBATCH --output=depthall.%A_%a.out    # %A master job ID, %a task id
 #SBATCH --error=depthall.%A_%a.err
-#SBATCH --array=0-2                     # 1 for each of 3 scenes
+#SBATCH --array=0-3                     # 1 for each of 4 scenes
 #SBATCH --cpus-per-task=4               # Schedule 4 for VGS
 #SBATCH --partition=scavenge            # High performance compute nodes with GPUs
 #SBATCH --gres=gpu:1                    # VGS is trained on 1 only, gres=gpu:rtx6000:1
