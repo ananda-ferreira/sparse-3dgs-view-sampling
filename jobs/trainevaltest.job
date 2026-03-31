@@ -43,14 +43,14 @@ python $VGS/train.py \
     --disable_viewer
     # -d "$$SPARSE/data/$dataset/$scene/depths" \
 
-# Generate renderings for trained model
-python $VGS/render.py \
-    -m $output
+# # Generate renderings for trained model
+# python $VGS/render.py \
+#     -m $output
  
-# Compute error metrics on renderings
-python $VGS/metrics.py \
-    -m $output
+# # Compute error metrics on renderings
+# python $VGS/metrics.py \
+#     -m $output
 
-nvidia-smi 
+# nvidia-smi 
 
 ### final version ###
