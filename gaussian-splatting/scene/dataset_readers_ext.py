@@ -4,7 +4,6 @@ from typing import NamedTuple
 from plyfile import PlyData, PlyElement
 import numpy as np
 
-from samplers.plot import highlight_sparse_views
 from utils.sh_utils import SH2RGB
 from samplers import RandomSampler, AngularSampler, BaselineSampler, VisibilitySampler 
 from scene.colmap_loader import qvec2rotmat, read_extrinsics_binary, read_extrinsics_text, read_intrinsics_binary, read_intrinsics_text, read_points3D_binary, read_points3D_text
@@ -288,7 +287,6 @@ def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffho
         sampler.save_sparse_views(model_path)
         sampler.save_cam_centers(path)
         assert len(train_cam_infos) == n_views
-        # highlight_sparse_views(sampler.get_cs(), sampler.get_sparse_cs(), False, model_path)
         print("Sampling successful!")
     print("Exiting script!")
     sys.exit(0)
