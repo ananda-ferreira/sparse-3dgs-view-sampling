@@ -2,8 +2,7 @@
 **/__pycache__/
 
 data/
-# output/
-# output-depth/
+plots/results/
 **/output*/
 pretrained/
 gaussian-splatting/pretrained/
