@@ -5,7 +5,6 @@
 #SBATCH --error=trainevalttvis6.%j.err
 #SBATCH --cpus-per-task=4        # Schedule 4 for VGS
 #SBATCH --partition=scavenge     # High performance compute nodes with GPUs
-# #SBATCH --gres=gpu:1                # VGS is trained on 1 only, gres=gpu:rtx6000:1
 #SBATCH --nodelist=cn10          # closest to A6000 from vanilla VGS?
 #SBATCH --gres=gpu:rtx6000:1                # VGS is trained on 1 only
 #SBATCH --mem=32G
@@ -43,10 +42,7 @@ python "$VGS/train.py" \
     --n_views $view \
     --sampler $sampler \
     --eval \
-    --ip none \
-    --port 0
-    # -d "$$SPARSE/data/$dataset/$scene/depths" \
-# -d <path to depth maps> \
+    --disable_viewer
 
 # Generate renderings for trained model
 python $VGS/render.py \
