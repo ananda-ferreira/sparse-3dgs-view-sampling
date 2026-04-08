@@ -3,32 +3,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
+from read_output import read_metrics_from_json
+
 ## plot camera info
-def highlight_sparse_views(cs, sparse_cs = [], center = None, label=False, save_path=None):
+def highlight_sparse_views(cs, sparse_cs = [], title = "", center = None, label=False, save_path=None):
 
-    sparse = []
-    others = []
+    sparse, others = [], []
 
-    sparse_cs_set = {tuple(x) for x in sparse_cs}
-    sparse = [(i+1, c) for i, c in enumerate(cs) if tuple(c) in sparse_cs_set]
-    others = [(i+1, c) for i, c in enumerate(cs) if tuple(c) not in sparse_cs_set]
+    def is_in_sparse(c, sparse_cs, tol=1e-6):
+        return any(np.allclose(c, s, atol=tol) for s in sparse_cs)
+    
+    for i, c in enumerate(cs):
+        if is_in_sparse(c, sparse_cs):
+            sparse.append((i+1, c))
+        else:
+            others.append((i+1, c))
+
+    # sparse = [(i+1, c) for i, c in enumerate(cs) if is_in_sparse(c, sparse_cs)]
+    # others = [(i+1, c) for i, c in enumerate(cs) if not is_in_sparse(c, sparse_cs)]
 
     fig = plt.figure()
+    fig.suptitle(title, fontsize=8)
     ax = fig.add_subplot(111, projection='3d')
 
     # plot all other cameras
     for i, c in others:
-        ax.scatter(c[0], c[1], c[2], color='blue')
-        if label: ax.text(c[0], c[1], c[2], str(i), color='blue', fontsize=8)
+        ax.scatter(c[0], c[1], c[2], color='blue', alpha=0.1)
+        if label: ax.text(c[0], c[1], c[2], str(i), color='blue', alpha=0.2, fontsize=8)
 
     # Plot highlighted subset
-    for i, c in sparse:
-        ax.scatter(c[0], c[1], c[2], color='red')
+    for j, (i, c) in enumerate(sparse):
+        print(c)
+        if j < 2:
+            color = (1, 0.8, 0, 1)
+        elif j < 4:
+            color = (1, 0.6, 0, 1)
+        else:
+            color = (1, 0.2, 0, 1)
+        ax.scatter(c[0], c[1], c[2], color=color)
         if label: ax.text(c[0], c[1], c[2], str(i), color='red', fontsize=8)
     
     # add world center
-    ax.scatter(0,0,0, color='green')
-    if label: ax.text(0,0,0, "world", color='green', fontsize=8)
+    ax.scatter(0,0,0, color='grey')
+    if label: ax.text(0,0,0, "world", color='grey', fontsize=8)
+    # ax.quiver(0, 0, 0, 0, 0, 1, length=2) 
     
     # add scene center
     if center:
@@ -45,9 +63,9 @@ def highlight_sparse_views(cs, sparse_cs = [], center = None, label=False, save_
     ax.set_zlim(-6, 6)
 
     ax.set_box_aspect([1,1,1])  # equal axis scaling
-    ax.view_init(elev=20, azim=-60)
+    ax.view_init(-75, -90) # elev: rotation from side to top/bottom view; azim: rotation only around z axis
                  
-    # ✅ Save or show
+    # Save or show
     if save_path is not None:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -233,5 +251,217 @@ def plot_test_renders_even(output_path, dataset, scene, viewCount, count, save_p
 
 ## plot quantitative results
 
-def plot():
-    pass
+import os
+import matplotlib.pyplot as plt
+
+def plot_metrics_table(output_path, scenes, datasets, sparse_view_counts, samplers):
+    rows = []
+    table_data = []
+
+    for view_count in sparse_view_counts:
+        for i, sc in enumerate(scenes):
+            row_name = f"{datasets[i]} {sc} {view_count}"
+            row_values = []
+
+            for metric in ["PSNR", "LPIPS", "SSIM"]:
+                for s in samplers:
+                    output_dir = f"{datasets[i]}-{sc}-{s}-{view_count}"
+                    path = os.path.join(output_path, output_dir)
+
+                    try:
+                        results = read_metrics_from_json(path)["ours_30000"]
+                        value = results[metric]
+                    except Exception:
+                        value = None
+
+                    # Format nicely (or leave blank)
+                    row_values.append(f"{value:.3f}" if value is not None else "")
+
+            rows.append(row_name)
+            table_data.append(row_values)
+
+    # Column labels
+    col_labels = []
+    for metric in ["PSNR", "LPIPS", "SSIM"]:
+        for s in samplers:
+            col_labels.append(f"{metric}\n{s}")
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(16, 8))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=rows,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center'
+    )
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+    table.scale(1, 1.5)
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, save_path):
+    table_data = []
+    row_labels = []
+
+    for view_count in sparse_view_counts:
+        row_labels.append(f"{view_count} views")
+        row = []
+
+        # Order: PSNR → SSIM → LPIPS
+        for metric in ["PSNR", "SSIM", "LPIPS"]:
+            for s in samplers:
+                output_dir = f"{dataset}-{scene}-{s}-{view_count}"
+                path = os.path.join(output_path, output_dir)
+
+                try:
+                    results = read_metrics_from_json(path)["ours_30000"]
+                    value = results[metric]
+                except Exception:
+                    value = None
+
+                row.append(f"{value:.3f}" if value is not None else "")
+
+        table_data.append(row)
+
+    # Column labels
+    col_labels = (
+        [f"PSNR\n{s}" for s in samplers] +
+        [f"SSIM\n{s}" for s in samplers] +
+        [f"LPIPS\n{s}" for s in samplers]
+    )
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(14, 3))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=row_labels,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center'
+    )
+
+    color_metric_headers(table, samplers)
+    # add_group_separators(ax, table, samplers)
+    highlight_best_per_row(table, table_data, samplers)
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(1, 1.8)
+
+    ax.set_title(f"{dataset} – {scene}", fontsize=12, pad=8)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
+def color_metric_headers(table, samplers):
+    n = len(samplers)
+
+    # Colors for each metric group
+    colors = {
+        "PSNR": (0.6, 0, 0, 0.15),   
+        "SSIM": (0, 0.6, 0, 0.15),   
+        "LPIPS": (0, 0, 0.6, 0.15)  
+    }
+
+    # Header row is row=0 in matplotlib tables
+    for col in range(3 * n):
+        if col < n:
+            color = colors["PSNR"]
+        elif col < 2 * n:
+            color = colors["SSIM"]
+        else:
+            color = colors["LPIPS"]
+
+        table[(0, col)].set_facecolor(color)
+
+def highlight_best_per_row(table, table_data, samplers):
+    n = len(samplers)
+
+    for row_idx, row in enumerate(table_data):
+        # Convert row to floats (ignore empty)
+        values = []
+        for v in row:
+            try:
+                values.append(float(v))
+            except:
+                values.append(None)
+
+        # Split into metric groups
+        psnr_vals = values[0:n]
+        ssim_vals = values[n:2*n]
+        lpips_vals = values[2*n:3*n]
+
+        # Find best indices
+        def best_idx(vals, mode="max"):
+            valid = [(i, v) for i, v in enumerate(vals) if v is not None]
+            if not valid:
+                return None
+            if mode == "max":
+                return max(valid, key=lambda x: x[1])[0]
+            else:
+                return min(valid, key=lambda x: x[1])[0]
+
+        best_psnr = best_idx(psnr_vals, "max")
+        best_ssim = best_idx(ssim_vals, "max")
+        best_lpips = best_idx(lpips_vals, "min")
+
+        # Apply highlight (row+1 because header is row 0)
+        if best_psnr is not None:
+            # table[(row_idx+1, best_psnr)].set_facecolor((0.8, 0.8, 0, 0.15))  # green
+            cell = table[(row_idx+1, best_psnr)]
+            cell.set_text_props(weight='bold')
+
+        if best_ssim is not None:
+            # table[(row_idx+1, n + best_ssim)].set_facecolor((0.8, 0.8, 0, 0.15))
+            cell = table[(row_idx+1, n + best_ssim)]
+            cell.set_text_props(weight='bold')
+
+        if best_lpips is not None:
+            # table[(row_idx+1, 2*n + best_lpips)].set_facecolor((0.8, 0.8, 0, 0.15))
+            cell = table[(row_idx+1, 2*n + best_lpips)]
+            cell.set_text_props(weight='bold')
+
+def add_group_separators(ax, table, samplers):
+    n = len(samplers)
+
+    # Total number of columns
+    total_cols = 3 * n
+
+    # Get table bounding box in axes coords
+    cells = table.get_celld()
+
+    # We use header row (0) to determine column positions
+    def get_x(col):
+        cell = cells[(0, col)]
+        return cell.get_x()
+
+    def get_right_x(col):
+        cell = cells[(0, col)]
+        return cell.get_x() + cell.get_width()
+
+    # Vertical span of the table
+    y_bottom = min(cell.get_y() for cell in cells.values())
+    y_top = max(cell.get_y() + cell.get_height() for cell in cells.values())
+
+    # Draw separators after PSNR and SSIM groups
+    separators = [n-1, 2*n-1]
+
+    for col in separators:
+        x = get_right_x(col)
+
+        ax.plot(
+            [x, x],
+            [y_bottom, y_top],
+            color='black',
+            linewidth=2,
+            transform=ax.transAxes,
+            clip_on=False
+        )
