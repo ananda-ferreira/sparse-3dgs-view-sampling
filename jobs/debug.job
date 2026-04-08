@@ -32,5 +32,4 @@ python --version
 echo "=== Conda prefix ==="
 echo $CONDA_PREFIX
 
-echo "=== libstdc++ resolution ==="
-ldd $CONDA_PREFIX/lib/python3.10/site-packages/matplotlib/_c_internal_utils*.so | grep libstdc++
+conda list open3d
