@@ -37,6 +37,16 @@ view=$3
 output=$CORGS/output/${dataset}-${scene}-${view}/
 # output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}/
 
+python - <<'EOF'
+import sys
+print("PYTHON:", sys.executable)
+try:
+    import open3d as o3d
+    print("Open3D:", o3d.__version__)
+except Exception as e:
+    print("Open3D ERROR:", e)
+EOF
+
 # from -r 3dgs flags
 python "$CORGS/train.py" \
   -s "$SPARSE/data/$dataset/$scene/" \
