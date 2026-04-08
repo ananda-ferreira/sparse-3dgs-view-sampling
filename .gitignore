@@ -1,5 +1,6 @@
 **/.DS_Store
 **/__pycache__/
+.vscode
 
 data/
 plots/results/
@@ -7,3 +8,5 @@ plots/results/
 pretrained/
 gaussian-splatting/pretrained/
 gaussian-splatting/Depth-Anything-V2/checkpoints
+
+cor-gs/
