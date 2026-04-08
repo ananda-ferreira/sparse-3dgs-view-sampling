@@ -8,15 +8,15 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import torch
 import sys
 import os
 from datetime import datetime
 import numpy as np
 import random
-import cv2
-import math
+# import cv2
+# import math
 import matplotlib.cm as cm
 
 def inverse_sigmoid(x):
