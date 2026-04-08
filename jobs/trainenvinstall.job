@@ -19,7 +19,6 @@ conda install --quiet --yes -c conda-forge plyfile tqdm
 
 # IT 2: avoids cv2 error running train.py
 conda install -c conda-forge opencv=4.10            
-# pip install joblib                                            # not done yet;
 
 # IT 4: matplotlib for depthanything
 conda install -c conda-forge matplotlib
@@ -34,6 +33,9 @@ pip install --no-cache-dir torch==2.1.2+cu121 \
 
 # IT 3: Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
 pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
+
+# IT 6: For cor-gs
+conda install --yes -c conda-forge open3d=0.18.0
 
 echo "=== Testing PyTorch import ==="
 python - << 'EOF'

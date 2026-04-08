@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=installiter5      # Job name
-#SBATCH --output=installiter5.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --job-name=installiter6      # Job name
+#SBATCH --output=installiter6.%j.out      # Name of output file (%j expands to jobId)
 #SBATCH --cpus-per-task=2           # Schedule one core
 #SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --partition=scavenge        # Run on either the Red or Brown queue
@@ -17,7 +17,7 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
 # backup current
-# conda env export > ../backup-iter3.yml
+conda env export > ../backup-iter5.yml
 
 # Install what you need 
-conda install -c conda-forge joblib
+conda install --yes -c conda-forge open3d=0.18.0
