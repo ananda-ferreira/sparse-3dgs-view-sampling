@@ -8,18 +8,18 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-
+## edited: comment structural_similarity import, no avge import from utils.image_utils
 from pathlib import Path
 import os
 from PIL import Image
 import torch
 import torchvision.transforms.functional as tf
 from utils.loss_utils import ssim
-from skimage.metrics import structural_similarity
+# from skimage.metrics import structural_similarity
 from lpipsPyTorch import lpips
 import json
 from tqdm import tqdm
-from utils.image_utils import psnr, avge
+from utils.image_utils import psnr
 from argparse import ArgumentParser
 
 def readImages(renders_dir, gt_dir):
@@ -65,41 +65,44 @@ def evaluate(model_paths):
                 renders_dir = method_dir / "renders"
                 renders, gts, image_names = readImages(renders_dir, gt_dir)
 
+## edited: comment ssims_sk, avges, avges_sk
                 ssims = []
-                ssims_sk = []
+                # ssims_sk = []
                 psnrs = []
                 lpipss = []
-                avges = []
-                avges_sk = []
+                # avges = []
+                # avges_sk = []
 
                 for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
                     ssims.append(ssim(renders[idx], gts[idx]))
-                    ssims_sk.append(structural_similarity(renders[idx][0].permute(1,2,0).cpu().numpy(), gts[idx][0].permute(1,2,0).cpu().numpy(), channel_axis=2, data_range=1.0))
+                    # ssims_sk.append(structural_similarity(renders[idx][0].permute(1,2,0).cpu().numpy(), gts[idx][0].permute(1,2,0).cpu().numpy(), channel_axis=2, data_range=1.0))
                     psnrs.append(psnr(renders[idx], gts[idx]))
                     lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
-                    avges.append(avge(torch.tensor(ssims[idx]), torch.tensor(psnrs[idx]), torch.tensor(lpipss[idx])))
-                    avges_sk.append(avge(torch.tensor(ssims_sk[idx]), torch.tensor(psnrs[idx]), torch.tensor(lpipss[idx])))
+                    # avges.append(avge(torch.tensor(ssims[idx]), torch.tensor(psnrs[idx]), torch.tensor(lpipss[idx])))
+                    # avges_sk.append(avge(torch.tensor(ssims_sk[idx]), torch.tensor(psnrs[idx]), torch.tensor(lpipss[idx])))
 
                 print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean(), ".5"))
-                print("  SSIM_sk : {:>12.7f}".format(torch.tensor(ssims_sk).mean(), ".5"))
+                # print("  SSIM_sk : {:>12.7f}".format(torch.tensor(ssims_sk).mean(), ".5"))
                 print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean(), ".5"))
                 print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean(), ".5"))
-                print("  AVGE: {:>12.7f}".format(torch.tensor(avges).mean(), ".5"))
-                print("  AVGE_sk: {:>12.7f}".format(torch.tensor(avges_sk).mean(), ".5"))
+                # print("  AVGE: {:>12.7f}".format(torch.tensor(avges).mean(), ".5"))
+                # print("  AVGE_sk: {:>12.7f}".format(torch.tensor(avges_sk).mean(), ".5"))
                 print("")
 
                 full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
-                                                        "SSIM_sk": torch.tensor(ssims_sk).mean().item(),
+                                                        # "SSIM_sk": torch.tensor(ssims_sk).mean().item(),
                                                         "PSNR": torch.tensor(psnrs).mean().item(),
                                                         "LPIPS": torch.tensor(lpipss).mean().item(),
-                                                        "AVGE": torch.tensor(avges).mean().item(),
-                                                        "AVGE_sk": torch.tensor(avges_sk).mean().item()})
+                                                        # "AVGE": torch.tensor(avges).mean().item(),
+                                                        # "AVGE_sk": torch.tensor(avges_sk).mean().item()
+                                                    })
                 per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
-                                                            "SSIM_sk": {name: ssim for ssim, name in zip(torch.tensor(ssims_sk).tolist(), image_names)},
+                                                            # "SSIM_sk": {name: ssim for ssim, name in zip(torch.tensor(ssims_sk).tolist(), image_names)},
                                                             "PSNR": {name: psnr for psnr, name in zip(torch.tensor(psnrs).tolist(), image_names)},
                                                             "LPIPS": {name: lp for lp, name in zip(torch.tensor(lpipss).tolist(), image_names)},
-                                                            "AVGE": {name: lp for lp, name in zip(torch.tensor(avges).tolist(), image_names)},
-                                                            "AVGE_sk": {name: lp for lp, name in zip(torch.tensor(avges_sk).tolist(), image_names)}})
+                                                            # "AVGE": {name: lp for lp, name in zip(torch.tensor(avges).tolist(), image_names)},
+                                                            # "AVGE_sk": {name: lp for lp, name in zip(torch.tensor(avges_sk).tolist(), image_names)}
+                                                        })
 
             with open(scene_dir + "/results.json", 'w') as fp:
                 json.dump(full_dict[scene_dir], fp, indent=True)
@@ -112,9 +115,10 @@ if __name__ == "__main__":
     device = torch.device("cuda:0")
     torch.cuda.set_device(device)
 
+## edited: comment --source_paths
     # Set up command line argument parser
     parser = ArgumentParser(description="Training script parameters")
-    parser.add_argument('--source_paths', '-s', required=True, nargs="+", type=str, default=[])
+    # parser.add_argument('--source_paths', '-s', required=True, nargs="+", type=str, default=[])
     parser.add_argument('--model_paths', '-m', required=True, nargs="+", type=str, default=[])
     parser.add_argument("--iteration", default=-1, type=int)
     args = parser.parse_args()

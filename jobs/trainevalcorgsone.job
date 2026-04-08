@@ -1,0 +1,72 @@
+#!/bin/bash
+
+#SBATCH --job-name=trainevalcorgsone      
+#SBATCH --output=trainevalcorgsone.%j.out  
+#SBATCH --error=trainevalcorgsone.%j.err
+#SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
+#SBATCH --partition=scavenge            # needed for rtx6000
+#SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
+#SBATCH --gres=gpu:rtx6000:1            # Vanilla 3DGS is trained on 1 only
+#SBATCH --mem=32G
+#SBATCH --time=02:00:00                 # enough if 15 min per train
+
+set -e # terminates if training fails, doesn't proceed with rendering or
+
+module load GCC/12.3.0           
+module load CUDA/12.1.1
+module load Anaconda3/2025.06-1 
+
+SPARSE=/home/anaf/sparse-3dgs
+CORGS=$SPARSE/cor-gs
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs) + activate env
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
+
+# args
+dataset=$1
+scene=$2
+view=$3
+# sampler=$4
+
+# echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
+
+output=$CORGS/output/${dataset}-${scene}-${view}/
+# output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}/
+
+# from -r 3dgs flags
+python "$CORGS/train.py" \
+  -s "$SPARSE/data/$dataset/$scene/" \
+  -m "$output" \
+  --n_views $view \
+  --rand_pcd \
+  --eval \
+  --disable_viewer \
+  --random_background \
+  --gaussiansN 2 \
+  --coprune --coprune_threshold 10 \
+  --coreg --sample_pseudo_interval 1 --start_sample_pseudo 2000 \
+  -r 4 \
+  --iterations 10000 --position_lr_max_steps 10000 \
+  --densify_until_iter 10000 \
+  --densify_grad_threshold 0.0005 \
+  # --sampler $sampler \
+
+# Generate renderings for trained model
+python "$CORGS/render.py" \
+  --source_path "$SPARSE/data/$dataset/$scene/" \
+  -m "$output"
+  
+# python "$CORGS/render.py" \
+#   -m "$output"
+ 
+# Compute error metrics on renderings
+python "$CORGS/metrics.py" \
+  -m "$output"
+
+# python "$CORGS/metrics.py" \
+#   -m "$output"
+
+nvidia-smi 
+
