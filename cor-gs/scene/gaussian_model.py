@@ -8,7 +8,7 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import torch
 import numpy as np
 from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
@@ -20,8 +20,8 @@ from utils.sh_utils import RGB2SH
 from simple_knn._C import distCUDA2
 from utils.graphics_utils import BasicPointCloud
 from utils.general_utils import strip_symmetric, build_scaling_rotation, chamfer_dist
-import open3d as o3d
-from torch.optim.lr_scheduler import MultiStepLR
+# import open3d as o3d
+# from torch.optim.lr_scheduler import MultiStepLR
 
 
 class GaussianModel:
