@@ -13,16 +13,16 @@ try:
     TENSORBOARD_FOUND = True
 except ImportError:
     TENSORBOARD_FOUND = False
-
+## edited: comment out unused imports
 import torchvision
 import numpy as np
-import matplotlib.cm as cm
+# import matplotlib.cm as cm
 import os
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import torch
-import torch.nn.functional as F
-from torchmetrics import PearsonCorrCoef
-from torchmetrics.functional.regression import pearson_corrcoef
+# import torch.nn.functional as F
+# from torchmetrics import PearsonCorrCoef
+# from torchmetrics.functional.regression import pearson_corrcoef
 from random import randint
 from utils.loss_utils import l1_loss, l1_loss_mask, l2_loss, ssim, loss_photometric
 from gaussian_renderer import render, network_gui
@@ -39,7 +39,7 @@ import random
 
 from utils.visualization_utils import depth2image, visualize_cmap
 
-import kmeans1d
+# import kmeans1d
 import open3d as o3d
 
 import copy
