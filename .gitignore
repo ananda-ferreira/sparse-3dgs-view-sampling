@@ -8,5 +8,3 @@ plots/results/
 pretrained/
 gaussian-splatting/pretrained/
 gaussian-splatting/Depth-Anything-V2/checkpoints
-
-cor-gs/
