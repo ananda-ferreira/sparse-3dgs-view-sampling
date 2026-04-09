@@ -47,7 +47,12 @@ nvcc --version
 # # STEP 3: build submodules
 cd ~/sparse-3dgs/cor-gs
 
-pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization-confidence
-pip install -v --no-build-isolation ./submodules/simple-knn
+
+pip install -v --no-use-pep517 --no-build-isolation \
+  ./submodules/diff-gaussian-rasterization-confidence
+
+
+pip install -v --no-use-pep517 --no-build-isolation \
+  ./submodules/simple-kn
 
 echo "DONE."
