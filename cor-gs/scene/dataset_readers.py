@@ -369,7 +369,7 @@ def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=Fals
     return scene_info
 
 ## edited: function adapted from ColmapSceneInfo
-def readSparseColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=True, sampler_name="random"):
+def readSparseColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=True, sampler_name="baseline"):
     def read_extr_and_intr(path):
         try:
             cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")

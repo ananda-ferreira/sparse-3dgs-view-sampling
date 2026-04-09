@@ -35,7 +35,7 @@ view=$3
 
 # echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-output=$CORGS/output/${dataset}-${scene}-${view}/
+output=$CORGS/output/${dataset}-${scene}-${view}-r1/
 # output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}/
 
 python - <<'EOF'
@@ -59,11 +59,11 @@ python "$CORGS/train.py" \
   --gaussiansN 2 \
   --coprune --coprune_threshold 10 \
   --coreg --sample_pseudo_interval 1 --start_sample_pseudo 2000 \
-  -r 4 \
   # --iterations 10000 \
   # --position_lr_max_steps 10000 \
   # --densify_until_iter 10000 \
-  # --densify_grad_threshold 0.0005 \
+  # --densify_grad_threshold 0.0005 \ # compromises quality
+  # -r 4 \
   # --sampler $sampler \
 
 # Generate renderings for trained model
@@ -71,15 +71,9 @@ python "$CORGS/render.py" \
   --source_path "$SPARSE/data/$dataset/$scene/" \
   -m "$output"
   
-# python "$CORGS/render.py" \
-#   -m "$output"
- 
 # Compute error metrics on renderings
 python "$CORGS/metrics.py" \
   -m "$output"
-
-# python "$CORGS/metrics.py" \
-#   -m "$output"
 
 nvidia-smi 
 
