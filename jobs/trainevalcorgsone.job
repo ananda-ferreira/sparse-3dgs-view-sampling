@@ -31,12 +31,11 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 dataset=$1
 scene=$2
 view=$3
-# sampler=$4
+sampler=$4
 
-# echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
+echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-output=$CORGS/output/${dataset}-${scene}-${view}-r2/
-# output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}/
+output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r2/
 
 python - <<'EOF'
 import sys
