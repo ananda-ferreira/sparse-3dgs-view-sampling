@@ -26,8 +26,11 @@ pip install --no-cache-dir torch==2.1.2+cu121 \
     torchaudio==2.1.2 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# IT 3: Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
+# IT 1: Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
 pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
+
+# IT 2: error fix
+pip install "setuptools<70" wheel
 
 # # intermediate step
 python - << 'EOF'
