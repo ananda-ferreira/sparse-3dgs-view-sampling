@@ -6,6 +6,8 @@
 #SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --partition=scavenge        # Run on either the Red or Brown queue
 
+set -e  # CRITICA
+
 module load GCC/12.3.0           # try error fix
 module load CUDA/12.1.1
 module load Anaconda3/2025.06-1 
@@ -17,7 +19,7 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
 # backup current
-conda env export > ../backup-iter5.yml
+# conda env export > ../backup-iter5.yml
 
 # Install what you need 
 conda install --yes -c conda-forge open3d=0.18.0

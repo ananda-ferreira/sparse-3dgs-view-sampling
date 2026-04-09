@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --job-name=createenv           # Job name
+#SBATCH --output=createenv.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2              # Schedule one core
+#SBATCH --time=01:00:00                # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge           # Run on either the Red or Brown queue
+
+set -e
+set -x
+
+module load Anaconda3/2025.06-1        # step 1: specify anaconda version
+
+# # step 1 create 
+export CONDA_PKGS_DIRS=/home/anaf/anaconda3-2025/cache
+
+# Create environment using the conda binary
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda create -y -p /home/anaf/anaconda3-2025/envs/cor-gs python=3.10
+
+echo "DONE."

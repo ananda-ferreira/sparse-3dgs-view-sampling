@@ -1,0 +1,64 @@
+#!/bin/bash
+
+#SBATCH --job-name=createenv           # Job name
+#SBATCH --output=createenv.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2              # Schedule one core
+#SBATCH --time=01:00:00                # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge           # Run on either the Red or Brown queue
+
+set -e
+set -x
+
+module load Anaconda3/2025.06-1        # step 1: specify anaconda version
+module load CUDA/12.1.1                # step 3: needed for nvcc
+
+# # intermediate step 
+export TMPDIR=/home/anaf/tmp
+
+# Load the conda shell function (required in batch jobs)
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/cor-gs
+
+# Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
+export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+
+# Optional: set architectures to speed up builds (edit to match your GPU fleet)
+# Common coverage: V100(7.0), T4(7.5), A100(8.0), A10/A30/A40(8.6), L40S(8.9), H100(9.0)
+export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
+# Parallelize the C++/CUDA build with allocated CPUs
+export MAX_JOBS="${SLURM_CPUS_PER_TASK:-4}"
+
+# # step 2 install python deps
+
+# IT 1, 2, 4, 6 (5 not needed in cor-gs) 
+conda install --quiet --yes -c conda-forge plyfile tqdm opencv=4.10 matplotlib open3d=0.18.0
+
+# IT 1
+pip install --no-cache-dir torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# IT 3: Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
+pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
+
+# # intermediate step
+python - << 'EOF'
+import torch, numpy as np
+print("Torch:", torch.__version__)
+print("CUDA:", torch.version.cuda, torch.cuda.is_available())
+print("NumPy:", np.__version__)
+EOF
+
+nvcc --version
+
+# # step 3 build submodules
+cd ~/sparse-3dgs/cor-gs
+
+pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
+pip install -v --no-build-isolation ./submodules/simple-knn
+
+echo "DONE."
+nvidia-smi 

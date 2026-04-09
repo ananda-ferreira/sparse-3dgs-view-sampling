@@ -3,7 +3,7 @@
 #SBATCH --job-name=depthall            # Job name
 #SBATCH --output=depthall.%A_%a.out    # %A master job ID, %a task id
 #SBATCH --error=depthall.%A_%a.err
-#SBATCH --array=0-2                     # 1 for each of 3 scenes
+#SBATCH --array=0-6                     # 1 for each of 7 scenes
 #SBATCH --cpus-per-task=4               # Schedule 4 for VGS
 #SBATCH --partition=scavenge            # High performance compute nodes with GPUs
 #SBATCH --gres=gpu:1                    # VGS is trained on 1 only, gres=gpu:rtx6000:1
@@ -27,8 +27,8 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
 # config arrays
-datasets=(db tandt dtu)
-scenes=(playroom train scan8)
+datasets=(dtu dtu dtu db db tandt tandt)
+scenes=(scan8 scan40 scan63 playroom drjohnson train truck)
 
 #map
 dataset=${datasets[$SLURM_ARRAY_TASK_ID]}
