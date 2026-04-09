@@ -59,7 +59,7 @@ class Scene:
                 scene_info = sceneLoadTypeCallbacks["DTU"](args.source_path, args.images, args.eval, args.n_views, rand_pcd=args.rand_pcd)
             else:
                 print("############ load sparse ############")
-                scene_info = sceneLoadTypeCallbacks["SparseColmap"](args.source_path, args.images, args.eval, args.n_views, rand_pcd=args.rand_pcd)
+                scene_info = sceneLoadTypeCallbacks["SparseColmap"](args.source_path, args.images, args.eval, args.n_views, rand_pcd=args.rand_pcd, sampler_name=args.sampler)
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")
             scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval, args.n_views, rand_pcd=args.rand_pcd)
