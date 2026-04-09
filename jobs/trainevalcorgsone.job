@@ -35,7 +35,7 @@ sampler=$4
 
 echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r2/
+output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r2-it20000/
 
 python - <<'EOF'
 import sys
@@ -60,8 +60,8 @@ python "$CORGS/train.py" \
   --coprune --coprune_threshold 10 \
   --coreg --sample_pseudo_interval 1 --start_sample_pseudo 2000 \
   -r 2 \
-  # --iterations 10000 \
-  # --position_lr_max_steps 10000 \
+  --iterations 20000 \
+  --position_lr_max_steps 20000 \
   # --densify_until_iter 10000 \
   # --densify_grad_threshold 0.0005 \ # compromises quality
 
