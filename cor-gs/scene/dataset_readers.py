@@ -281,7 +281,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-
+## edited: bin_path and txt_path for points3D
 def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=False):
     if n_views <= 0:
         ply_path = os.path.join(path, "sparse/0/points3D.ply")
@@ -290,8 +290,10 @@ def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=Fals
     elif rand_pcd:
         print('Init random point cloud.')
         ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
-        bin_path = os.path.join(path, "sparse/0/points3D_random.bin")
-        txt_path = os.path.join(path, "sparse/0/points3D_random.txt")
+        bin_path = os.path.join(path, "sparse/0/points3D.bin")
+        txt_path = os.path.join(path, "sparse/0/points3D.txt")
+        # bin_path = os.path.join(path, "sparse/0/points3D_random.bin")
+        # txt_path = os.path.join(path, "sparse/0/points3D_random.txt")
 
         try:
             xyz, rgb, _ = read_points3D_binary(bin_path)
@@ -337,7 +339,6 @@ def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=Fals
     except:
         pcd = None
 
-
     reading_dir = "images" if images == None else images
     rgb_mapping = [f for f in sorted(glob.glob(os.path.join(path, reading_dir, '*')))
                    if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
@@ -367,7 +368,109 @@ def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=Fals
                            ply_path=ply_path)
     return scene_info
 
+## added: readSparseColmapSceneInfo(); needs adjustment
+def readSparseColmapSceneInfo(path, images, depths, eval, train_test_exp, llffhold=8, n_views=0, sampler_name="random", model_path=""):
+    def create_rand_ply(path, ply_path, num_pts=1000):
+        """ Generates random pcd, stores it in a ply file. """
+        print('Init random point cloud.')
+        # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+        bin_path = os.path.join(path, "sparse/0/points3D.bin")
+        txt_path = os.path.join(path, "sparse/0/points3D.txt")
 
+        ### below part in 3dgs is only run if file doesnt exist yet, add?
+
+        # get xyz to generate rand pcd shape
+        try:
+            xyz, rgb, _ = read_points3D_binary(bin_path)
+        except:
+            xyz, rgb, _ = read_points3D_text(txt_path)
+        pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
+
+        # generate random points and shs
+        num_pts = 10_00
+        xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 100, 0)[-1] # - 0.15 * pcd_shape
+        print(f"Generating random point cloud ({num_pts})...")
+        shs = np.random.random((num_pts, 3)) / 255.0
+        storePly(ply_path, xyz, SH2RGB(shs) * 255)
+    
+    def read_extr_and_intr(path):
+        try:
+            cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
+            cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
+            cam_extrinsics = read_extrinsics_binary(cameras_extrinsic_file)
+            cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
+        except:
+            cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+            cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
+            cam_extrinsics = read_extrinsics_text(cameras_extrinsic_file)
+            cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
+        return cam_extrinsics, cam_intrinsics
+    
+    ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
+    if not os.path.exists(ply_path):
+        print("Creating random.ply, will happen only the first time you open the scene.")
+        create_rand_ply(path, ply_path, num_pts=1000)
+    try:
+        pcd = fetchPly(ply_path)
+    except:
+        pcd = None
+
+    cam_extrinsics, cam_intrinsics = read_extr_and_intr(path)
+    
+    depth_params_file = os.path.join(path, "sparse/0", "depth_params.json")
+    ## if depth_params_file isnt there AND depths file is here -> throw error
+    depths_params = None
+    if depths != "":
+        try:
+            with open(depth_params_file, "r") as f:
+                depths_params = json.load(f)
+            all_scales = np.array([depths_params[key]["scale"] for key in depths_params])
+            if (all_scales > 0).sum():
+                med_scale = np.median(all_scales[all_scales > 0])
+            else:
+                med_scale = 0
+            for key in depths_params:
+                depths_params[key]["med_scale"] = med_scale
+
+        except FileNotFoundError:
+            print(f"Error: depth_params.json file not found at path '{depth_params_file}'.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"An unexpected error occurred when trying to open depth_params.json file: {e}")
+            sys.exit(1)
+
+    if eval:
+        if "360" in path:
+            llffhold = 8
+        if llffhold:
+            print("------------LLFF HOLD-------------")
+            cam_names = [cam_extrinsics[cam_id].name for cam_id in cam_extrinsics]
+            cam_names = sorted(cam_names)
+            test_cam_names_list = [name for idx, name in enumerate(cam_names) if idx % llffhold == 0]
+        else:
+            with open(os.path.join(path, "sparse/0", "test.txt"), 'r') as file:
+                test_cam_names_list = [line.strip() for line in file]
+    else:
+        test_cam_names_list = []
+
+    reading_dir = "images" if images == None else images
+    cam_infos_unsorted = readColmapCameras(
+        cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, depths_params=depths_params,
+        images_folder=os.path.join(path, reading_dir), 
+        depths_folder=os.path.join(path, depths) if depths != "" else "", test_cam_names_list=test_cam_names_list)
+    cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
+
+    train_cam_infos = [c for c in cam_infos if train_test_exp or not c.is_test]
+    test_cam_infos = [c for c in cam_infos if c.is_test]
+
+    nerf_normalization = getNerfppNorm(train_cam_infos)
+
+    scene_info = SceneInfo(point_cloud=pcd,
+                           train_cameras=train_cam_infos,
+                           test_cameras=test_cam_infos,
+                           nerf_normalization=nerf_normalization,
+                           ply_path=ply_path)
+    return scene_info
 
 def readDTUSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=False):
     if rand_pcd:
@@ -689,6 +792,7 @@ def CreateDTUSpiral(basedir):
 
 sceneLoadTypeCallbacks = {
     "Colmap": readColmapSceneInfo,
+    "SparseColmap": readColmapSceneInfo,
     "Blender" : readNerfSyntheticInfo,
     "DTU": readDTUSceneInfo,
     "SpiralDTU" : CreateDTUSpiral,
