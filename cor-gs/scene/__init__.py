@@ -94,6 +94,7 @@ class Scene:
             print("Loading Test Cameras", resolution_scale)
             self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args)
 
+## edited: added else block
             pseudo_cams = []
             if args.source_path.find('llff') != -1:
                 pseudo_poses = generate_random_poses_llff(self.train_cameras[resolution_scale])
@@ -103,7 +104,9 @@ class Scene:
                 pseudo_poses = generate_random_poses_360(self.train_cameras[resolution_scale])
             elif args.source_path.find('DTU') != -1:
                 pseudo_poses = generate_random_poses_llff(self.train_cameras[resolution_scale])
-
+            else:
+                pseudo_poses = generate_random_poses_llff(self.train_cameras[resolution_scale])
+            
             view = self.train_cameras[resolution_scale][0]
             self.bounds = view.bounds
             for pose in pseudo_poses:
