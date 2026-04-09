@@ -20,6 +20,9 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/cor-gs
 
+# IT 2.2: for pkg_resources error
+conda install --yes setuptools
+
 # Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
 export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
 export PATH="$CUDA_HOME/bin:$PATH"
