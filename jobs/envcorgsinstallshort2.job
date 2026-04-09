@@ -44,8 +44,7 @@ nvcc --version
 # # STEP 3: build submodules
 cd ~/sparse-3dgs/cor-gs
 
-pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
+pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization-confidence
 pip install -v --no-build-isolation ./submodules/simple-knn
 
 echo "DONE."
-nvidia-smi 
