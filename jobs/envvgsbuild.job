@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainenvbuild
-#SBATCH --output=trainenvbuild.%j.out
+#SBATCH --job-name=envvgsbuild
+#SBATCH --output=envvgsbuild.%j.out
 #SBATCH --cpus-per-task=4
 #SBATCH --time=01:00:00
 #SBATCH --partition=acltr
