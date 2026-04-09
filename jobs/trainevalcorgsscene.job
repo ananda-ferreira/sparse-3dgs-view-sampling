@@ -13,6 +13,7 @@
 
 set -e # terminates if training fails, doesn't proceed with rendering or
 
+module purge
 module load GCC/12.3.0           
 module load CUDA/12.1.1
 module load Anaconda3/2025.06-1 
