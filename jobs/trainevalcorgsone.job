@@ -55,7 +55,6 @@ python "$CORGS/train.py" \
   --n_views $view \
   --rand_pcd \
   --eval \
-  --disable_viewer \
   --random_background \
   --gaussiansN 2 \
   --coprune --coprune_threshold 10 \
@@ -65,6 +64,7 @@ python "$CORGS/train.py" \
   --densify_until_iter 10000 \
   --densify_grad_threshold 0.0005 \
   # --sampler $sampler \
+  # --disable_viewer \
 
 # Generate renderings for trained model
 python "$CORGS/render.py" \
