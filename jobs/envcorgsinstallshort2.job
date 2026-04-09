@@ -53,6 +53,6 @@ pip install -v --no-use-pep517 --no-build-isolation \
 
 
 pip install -v --no-use-pep517 --no-build-isolation \
-  ./submodules/simple-kn
+  ./submodules/simple-knn
 
 echo "DONE."
