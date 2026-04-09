@@ -3,7 +3,7 @@
 #SBATCH --job-name=trainevaldepthall      
 #SBATCH --output=trainevaldepthall.%A_%a.out  # %A master job ID, %a task id
 #SBATCH --error=trainevaldepthall.%A_%a.err
-#SBATCH --array=0-35                    # 3 views * 4 samplers * 3 scenes = 36 configs
+#SBATCH --array=0-83                    # 3 views * 4 samplers * 7 scenes = 84 configs
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
@@ -28,8 +28,8 @@ conda activate /home/anaf/anaconda3-2025/envs/cor-gs
 # config arrays
 views=(2 4 6)
 samplers=(random baseline angular visibility)
-datasets=(dtu dtu dtu db tandt)
-scenes=(scan8 scan40 scan63 playroom train)
+datasets=(dtu dtu dtu db db tandt tandt)
+scenes=(scan8 scan40 scan63 playroom drjohnson train truck)
 
 # mapping
 dataset_idx=$((SLURM_ARRAY_TASK_ID / 12))
