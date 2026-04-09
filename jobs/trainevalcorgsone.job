@@ -52,6 +52,7 @@ python "$CORGS/train.py" \
   -s "$SPARSE/data/$dataset/$scene/" \
   -m "$output" \
   --n_views $view \
+  --sampler $sampler \
   --rand_pcd \
   --eval \
   --random_background \
@@ -63,7 +64,6 @@ python "$CORGS/train.py" \
   # --position_lr_max_steps 10000 \
   # --densify_until_iter 10000 \
   # --densify_grad_threshold 0.0005 \ # compromises quality
-  # --sampler $sampler \
 
 # Generate renderings for trained model
 python "$CORGS/render.py" \
