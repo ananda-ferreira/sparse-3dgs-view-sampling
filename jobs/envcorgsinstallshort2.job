@@ -22,6 +22,7 @@ conda activate /home/anaf/anaconda3-2025/envs/cor-gs
 
 # IT 2.2: for pkg_resources error
 # conda install --yes setuptools
+pip install "setuptools<70" wheel
 
 # Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
 export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
@@ -47,11 +48,10 @@ nvcc --version
 # # STEP 3: build submodules
 cd ~/sparse-3dgs/cor-gs
 
-export PIP_DISABLE_PEP517=1
+# export PIP_DISABLE_PEP517=1
 
 pip install -v --no-build-isolation \
   ./submodules/diff-gaussian-rasterization-confidence
-
 
 pip install -v --no-build-isolation \
   ./submodules/simple-knn
