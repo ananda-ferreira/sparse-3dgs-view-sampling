@@ -25,6 +25,7 @@ export TMPDIR=/home/anaf/tmp
 # Load the conda shell function (required in batch jobs) + activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/cor-gs  
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
 # default scene
 dataset=$1
