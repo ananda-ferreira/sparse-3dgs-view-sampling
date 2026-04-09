@@ -370,45 +370,67 @@ def readColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=Fals
 
 ## edited: function adapted from ColmapSceneInfo
 def readSparseColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pcd=True, sampler_name="random"):
-    if n_views <= 0:
-        ply_path = os.path.join(path, "sparse/0/points3D.ply")
-        bin_path = os.path.join(path, "sparse/0/points3D.bin")
-        txt_path = os.path.join(path, "sparse/0/points3D.txt")
-    elif rand_pcd:
+    def read_extr_and_intr(path):
+        try:
+            cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
+            cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
+            cam_extrinsics = read_extrinsics_binary(cameras_extrinsic_file)
+            cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
+        except:
+            cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+            cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
+            cam_extrinsics = read_extrinsics_text(cameras_extrinsic_file)
+            cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
+        return cam_extrinsics, cam_intrinsics
+    def create_rand_ply(path, ply_path, num_pts=1000):
+        """ Generates random pcd, stores it in a ply file. """
         print('Init random point cloud.')
-        ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+        # ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
         bin_path = os.path.join(path, "sparse/0/points3D.bin")
         txt_path = os.path.join(path, "sparse/0/points3D.txt")
 
+        ### below part in 3dgs is only run if file doesnt exist yet, add?
+
+        # get xyz to generate rand pcd shape
         try:
             xyz, rgb, _ = read_points3D_binary(bin_path)
         except:
             xyz, rgb, _ = read_points3D_text(txt_path)
-        # print(xyz.max(0), xyz.min(0))
+        
 
+        # generate random points and shs
+        pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
+        num_pts = 10_00
+        xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 100, 0)[-1] # - 0.15 * pcd_shape
+        print(f"Generating random point cloud ({num_pts})...")
+        
+        shs = np.random.random((num_pts, 3)) / 255.0
+        storePly(ply_path, xyz, SH2RGB(shs) * 255)
+    
+    if n_views <= 0:
+        ply_path = os.path.join(path, "sparse/0/points3D.ply")
+        bin_path = os.path.join(path, "sparse/0/points3D.bin")
+        txt_path = os.path.join(path, "sparse/0/points3D.txt")
+
+    elif rand_pcd:
+        print(f'Init random point cloud for {n_views} views.')
+        ply_path = os.path.join(path, "sparse/0/points3D_random.ply") 
         if not os.path.exists(ply_path):
-            pcd_shape = (topk_(xyz, 1, 0)[-1] + topk_(-xyz, 1, 0)[-1])
-            num_pts = int(pcd_shape.max() * 50)
-            xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 20, 0)[-1]
-            print(pcd_shape)
-            print(f"Generating random point cloud ({num_pts})...")
-
-            shs = np.random.random((num_pts, 3)) / 255.0
-            pcd = BasicPointCloud(points=xyz, colors=SH2RGB(shs), normals=np.zeros((num_pts, 3)))
-            storePly(ply_path, xyz, SH2RGB(shs) * 255)
+            print("Creating random.ply, will happen only the first time you open the scene.")
+            create_rand_ply(path, ply_path, num_pts=1000)
+        ## old - kept for reference
+        # pcd_shape = (topk_(xyz, 1, 0)[-1] + topk_(-xyz, 1, 0)[-1])
+        # num_pts = int(pcd_shape.max() * 50)
+        # xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 20, 0)[-1]
+        # print(pcd_shape)
+        # print(f"Generating random point cloud ({num_pts})...")
+        # shs = np.random.random((num_pts, 3)) / 255.0
+        # # pcd = BasicPointCloud(points=xyz, colors=SH2RGB(shs), normals=np.zeros((num_pts, 3)))
+        # storePly(ply_path, xyz, SH2RGB(shs) * 255)
     else:
         ply_path = os.path.join(path, str(n_views) + "_views/dense/fused.ply")
 
-    try:
-        cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
-        cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
-        cam_extrinsics = read_extrinsics_binary(cameras_extrinsic_file)
-        cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
-    except:
-        cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
-        cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
-        cam_extrinsics = read_extrinsics_text(cameras_extrinsic_file)
-        cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
+    cam_extrinsics, cam_intrinsics = read_extr_and_intr(path)
 
     if not os.path.exists(ply_path):
         print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
