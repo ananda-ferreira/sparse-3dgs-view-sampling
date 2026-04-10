@@ -35,17 +35,8 @@ sampler=$4
 
 echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r-it10000/
-
-python - <<'EOF'
-import sys
-print("PYTHON:", sys.executable)
-try:
-    import open3d as o3d
-    print("Open3D:", o3d.__version__)
-except Exception as e:
-    print("Open3D ERROR:", e)
-EOF
+output=$CORGS/output/${dataset}-${scene}-${view}-r4-it10000/
+# output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r4-it10000/
 
 # from -r down 3dgs flags
 python "$CORGS/train.py" \
@@ -59,11 +50,11 @@ python "$CORGS/train.py" \
   --gaussiansN 2 \
   --coprune --coprune_threshold 10 \
   --coreg --sample_pseudo_interval 1 --start_sample_pseudo 2000 \
+  -r 4 \
   --iterations 10000 \
   --position_lr_max_steps 10000 \
   --densify_until_iter 10000 \
   --densify_grad_threshold 0.0005
-  # -r 2 \
 
 # Generate renderings for trained model
 python "$CORGS/render.py" \
@@ -75,4 +66,3 @@ python "$CORGS/metrics.py" \
   -m "$output"
 
 nvidia-smi 
-
