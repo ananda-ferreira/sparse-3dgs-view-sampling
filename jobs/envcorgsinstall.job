@@ -8,7 +8,6 @@
 #SBATCH --gres=gpu:1
 
 set -e
-set -x
 
 module load Anaconda3/2025.06-1        # step 1: specify anaconda version
 module load CUDA/12.1.1                # step 3: needed for nvcc

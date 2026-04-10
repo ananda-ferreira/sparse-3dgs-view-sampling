@@ -1,30 +1,26 @@
 #!/bin/bash
 
-#SBATCH --job-name=envvgsinstall      # Job name
-#SBATCH --output=envvgsinstall.%j.out      # Name of output file (%j expands to jobId)
-#SBATCH --cpus-per-task=2           # Schedule one core
-#SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
-#SBATCH --partition=scavenge        # Run on either the Red or Brown queue
+#SBATCH --job-name=envvgsinstall        
+#SBATCH --output=envvgsinstall.%j.out   # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=4               # Schedule one core
+#SBATCH --time=03:00:00                 # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=acltr           
+#SBATCH --gres=gpu:1                    # needed for submodule build
+
+set -euo pipefail
 
 module load Anaconda3/2025.06-1                         
-# module load CUDA/12.1.1             # I don't think needed here?
+module load CUDA/12.1.1             # needed for nvcc during submodules build
 
 export TMPDIR=/home/anaf/tmp
 
 # Load the conda shell function (required in batch jobs) and activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
-conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs   
+conda activate /home/anaf/anaconda3-2025/envs/vgs   
 
-conda install --quiet --yes -c conda-forge plyfile tqdm         
-
-# IT 2: avoids cv2 error running train.py
-conda install -c conda-forge opencv=4.10            
-
-# IT 4: matplotlib for depthanything
-conda install -c conda-forge matplotlib
-
-# IT 5: joblib for depthanything
-conda install -c conda-forge joblib
+## install python deps
+# IT 2,4,5
+conda install --quiet --yes -c conda-forge plyfile tqdm opencv=4.10 matplotlib joblib
 
 pip install --no-cache-dir torch==2.1.2+cu121 \
     torchvision==0.16.2+cu121 \
@@ -34,9 +30,7 @@ pip install --no-cache-dir torch==2.1.2+cu121 \
 # IT 3: Fix NumPy ABI to match PyTorch 2.1.x expectations (downgrade NumPy 2.x -> 1.26.x)
 pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
 
-# IT 6: For cor-gs
-conda install --yes -c conda-forge open3d=0.18.0
-
+## env check
 echo "=== Testing PyTorch import ==="
 python - << 'EOF'
 import torch
@@ -44,6 +38,27 @@ print("Torch import OK")
 print("Torch version:", torch.__version__)
 print("CUDA version:", torch.version.cuda)
 EOF
+
+nvcc --version
+
+## build submodules
+# Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
+export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+
+# Optional: set architectures to speed up builds (edit to match your GPU fleet)
+# Common coverage: V100(7.0), T4(7.5), A100(8.0), A10/A30/A40(8.6), L40S(8.9), H100(9.0)
+export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
+# Parallelize the C++/CUDA build with allocated CPUs
+export MAX_JOBS="${SLURM_CPUS_PER_TASK:-4}"
+
+# Build the submodules (must run inside repo)
+cd ~/sparse-3dgs/gaussian-splatting
+
+pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
+pip install -v --no-build-isolation ./submodules/simple-knn
+pip install -v --no-build-isolation ./submodules/fused-ssim
 
 echo "DONE."
 #### final version ####
