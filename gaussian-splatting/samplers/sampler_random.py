@@ -7,6 +7,7 @@ class RandomSampler(Sampler):
     def __init__(self, viewCount: int, cam_infos: list):
         super().__init__(viewCount, cam_infos)
 
+# i dont think sorted is needed
     def sample(self):
         sparse_idxs = sorted(sample(range(len(self.cam_infos_ext)), self.viewCount))
         self.sparse_views = [self.cam_infos_ext[i]["img_name"] for i in sparse_idxs]

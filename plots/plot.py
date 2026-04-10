@@ -142,6 +142,69 @@ def plot_renders_per_view(viewCount, dataset, scene, indices, output_path, save_
     plt.savefig(save_path)
     plt.close()
 
+def plot_renders_per_view_even(viewCount, dataset, scene, count, output_path, save_path):
+    renders_path = "test/ours_30000/renders"
+    paths = {
+        "gt": os.path.join(output_path, f"{dataset}-{scene}-random-{viewCount}", "test/ours_30000/gt"),
+        "random": os.path.join(output_path, f"{dataset}-{scene}-random-{viewCount}", renders_path),
+        "baseline": os.path.join(output_path, f"{dataset}-{scene}-baseline-{viewCount}", renders_path),
+        "angular": os.path.join(output_path, f"{dataset}-{scene}-angular-{viewCount}", renders_path),
+        "visibility": os.path.join(output_path, f"{dataset}-{scene}-visibility-{viewCount}", renders_path),
+    }
+
+    samplers = list(paths.keys())
+
+        # --- Get all filenames from one sampler (assume all match) ---
+    all_files = [
+        f for f in os.listdir(paths["random"]) if f.endswith(".png")
+    ]
+
+    total = len(all_files)
+
+    # --- Pick evenly spaced indices ---
+    selected_positions = np.linspace(0, total - 1, count, dtype=int)
+    selected_files = [all_files[i] for i in selected_positions]
+
+    num_rows = len(selected_files)
+    num_cols = len(samplers)
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(4*num_cols, 4*num_rows))
+
+    # Handle edge case when only 1 row
+    if num_rows == 1:
+        axes = [axes]
+
+    for row_idx, filename in enumerate(selected_files):
+        for col_idx, sampler in enumerate(samplers):
+            ax = axes[row_idx][col_idx]
+
+            img_path = os.path.join(paths[sampler], filename)
+            
+            if os.path.exists(img_path):
+                img = Image.open(img_path)
+                ax.imshow(img)
+            else:
+                ax.text(0.5, 0.5, "Missing", ha='center', va='center')
+            
+            # ax.axis("off")
+            ax.set_xticks([])
+            ax.set_yticks([])
+            for spine in ax.spines.values():
+                spine.set_visible(False)
+
+            # Column titles
+            if row_idx == 0:
+                ax.set_title(sampler, fontsize=20, pad=24)
+
+            # # Row labels (image index)
+            # if col_idx == 0:
+            #     ax.set_ylabel(f"idx {filename}")
+
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.02, wspace=0.02)
+    plt.savefig(save_path)
+    plt.close()
+
 def plot_renders_per_img(index, dataset, scene, view_counts, output_path, save_path):
     renders_path = "test/ours_30000/renders"
     gt_path = "test/ours_30000/gt"
@@ -191,68 +254,8 @@ def plot_renders_per_img(index, dataset, scene, view_counts, output_path, save_p
     plt.savefig(save_path)
     plt.close()
 
-def plot_test_renders_even(output_path, dataset, scene, viewCount, count, save_path):
-    renders_path = "test/ours_30000/renders"
-    paths = {
-        "gt": os.path.join(output_path, f"{dataset}-{scene}-random-{viewCount}", "test/ours_30000/gt"),
-        "random": os.path.join(output_path, f"{dataset}-{scene}-random-{viewCount}", renders_path),
-        "baseline": os.path.join(output_path, f"{dataset}-{scene}-baseline-{viewCount}", renders_path),
-        "angular": os.path.join(output_path, f"{dataset}-{scene}-angular-{viewCount}", renders_path),
-        "visibility": os.path.join(output_path, f"{dataset}-{scene}-visibility-{viewCount}", renders_path),
-    }
-
-    samplers = list(paths.keys())
-
-        # --- Get all filenames from one sampler (assume all match) ---
-    all_files = [
-        f for f in os.listdir(paths["random"]) if f.endswith(".png")
-    ]
-
-    total = len(all_files)
-
-    # --- Pick evenly spaced indices ---
-    selected_positions = np.linspace(0, total - 1, count, dtype=int)
-    selected_files = [all_files[i] for i in selected_positions]
-
-    num_rows = len(selected_files)
-    num_cols = len(samplers)
-
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(4*num_cols, 4*num_rows))
-
-    # Handle edge case when only 1 row
-    if num_rows == 1:
-        axes = [axes]
-
-    for row_idx, filename in enumerate(selected_files):
-        for col_idx, sampler in enumerate(samplers):
-            ax = axes[row_idx][col_idx]
-
-            img_path = os.path.join(paths[sampler], filename)
-            
-            if os.path.exists(img_path):
-                img = Image.open(img_path)
-                ax.imshow(img)
-            else:
-                ax.text(0.5, 0.5, "Missing", ha='center', va='center')
-            
-            ax.axis("off")
-
-            # Column titles
-            if row_idx == 0:
-                ax.set_title(sampler)
-
-            # Row labels (image index)
-            if col_idx == 0:
-                ax.set_ylabel(f"idx {filename}")
-
-    plt.tight_layout()
-    plt.savefig(save_path)
-    plt.close()
 
 ## plot quantitative results
-
-import os
-import matplotlib.pyplot as plt
 
 def plot_metrics_table(output_path, scenes, datasets, sparse_view_counts, samplers):
     rows = []
@@ -309,6 +312,10 @@ def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, 
     table_data = []
     row_labels = []
 
+    # for diff row
+    row_2views = None
+    row_6views = None
+
     for view_count in sparse_view_counts:
         row_labels.append(f"{view_count} views")
         row = []
@@ -326,9 +333,28 @@ def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, 
                     value = None
 
                 row.append(f"{value:.3f}" if value is not None else "")
+        # for diff row
+        if view_count == 2:
+            row_2views = row.copy()
+        if view_count == 6:
+            row_6views = row.copy()
 
         table_data.append(row)
 
+    # --- Add difference row (6 views - 2 views) ---
+    if row_2views is not None and row_6views is not None:
+        diff_row = []
+
+        for v2, v6 in zip(row_2views, row_6views):
+            try:
+                diff = float(v6) - float(v2)
+                diff_row.append(f"{diff:+.3f}")  # + sign for clarity
+            except:
+                diff_row.append("")
+
+        table_data.append(diff_row)
+        row_labels.append("Δ (6 - 2)")
+        
     # Column labels
     col_labels = (
         [f"PSNR\n{s}" for s in samplers] +
@@ -361,6 +387,97 @@ def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, 
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
 
+def plot_dataset_table(output_path, scenes, dataset, sparse_view_counts, samplers, save_path):
+    table_data = []
+    row_labels = []
+
+    # for diff row
+    row_2views = None
+    row_6views = None
+
+    for view_count in sparse_view_counts:
+        row_labels.append(f"{view_count} views")
+        row = []
+
+        # Order: PSNR → SSIM → LPIPS
+        for metric in ["PSNR", "SSIM", "LPIPS"]:
+            for s in samplers:
+
+                values = []
+
+                # --- collect across scenes ---
+                for scene in scenes:
+                    output_dir = f"{dataset}-{scene}-{s}-{view_count}"
+                    path = os.path.join(output_path, output_dir)
+
+                    try:
+                        results = read_metrics_from_json(path)["ours_30000"]
+                        values.append(results[metric])
+                    except Exception:
+                        continue
+
+                # --- average ---
+                if len(values) > 0:
+                    avg_value = np.mean(values)
+                    row.append(f"{avg_value:.3f}")
+                else:
+                    row.append("")
+        
+        # for diff row
+        if view_count == 2:
+            row_2views = row.copy()
+        if view_count == 6:
+            row_6views = row.copy()
+
+        table_data.append(row)
+        
+    # --- Add difference row (6 views - 2 views) ---
+    if row_2views is not None and row_6views is not None:
+        diff_row = []
+
+        for v2, v6 in zip(row_2views, row_6views):
+            try:
+                diff = float(v6) - float(v2)
+                diff_row.append(f"{diff:+.3f}")
+            except:
+                diff_row.append("")
+
+        table_data.append(diff_row)
+        row_labels.append("Δ (6 - 2)")
+    
+    # Column labels
+    col_labels = (
+        [f"PSNR\n{s}" for s in samplers] +
+        [f"SSIM\n{s}" for s in samplers] +
+        [f"LPIPS\n{s}" for s in samplers]
+    )
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(14, 3))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=row_labels,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center'
+    )
+
+    color_metric_headers(table, samplers)
+    # add_group_separators(ax, table, samplers)
+    highlight_best_per_row(table, table_data, samplers)
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(1, 1.8)
+
+    ax.set_title(f"{dataset}", fontsize=12, pad=8)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
+## cosmetic utils
 def color_metric_headers(table, samplers):
     n = len(samplers)
 

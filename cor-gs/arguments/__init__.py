@@ -57,7 +57,7 @@ class ModelParams(ParamGroup):
         self.n_views = 0
         self.rand_pcd = False
         self.n_sparse = -1
-        self.sampler = "random"
+        self.sampler = "baseline"
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
