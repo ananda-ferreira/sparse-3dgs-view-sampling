@@ -452,43 +452,43 @@ def readSparseColmapSceneInfo(path, images, eval, n_views=0, llffhold=8, rand_pc
                              images_folder=os.path.join(path, reading_dir),  path=path, rgb_mapping=rgb_mapping)
     cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
 
+    # if eval:
+    #     train_idx = [25, 22, 28, 40, 44, 48, 0, 8, 13]
+    #     exclude_idx = [3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 36, 37, 38, 39]
+    #     test_idx = [i for i in np.arange(49) if i not in train_idx + exclude_idx]
+    #     if n_views > 0:
+    #         train_idx = train_idx[:n_views]
+    #     train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in train_idx]
+    #     test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in test_idx]
+    # else:
+    #     train_cam_infos = cam_infos
+    #     test_cam_infos = []
+
     if eval:
-        train_idx = [25, 22, 28, 40, 44, 48, 0, 8, 13]
-        exclude_idx = [3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 36, 37, 38, 39]
-        test_idx = [i for i in np.arange(49) if i not in train_idx + exclude_idx]
-        if n_views > 0:
-            train_idx = train_idx[:n_views]
-        train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in train_idx]
-        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in test_idx]
+        train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
     else:
         train_cam_infos = cam_infos
         test_cam_infos = []
 
-#     if eval:
-#         train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
-#         test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
-#     else:
-#         train_cam_infos = cam_infos
-#         test_cam_infos = []
-
-# # ##### Sample #######
-#     if n_views > 0:
-#         print(f"Sampling {n_views} views with {sampler_name} sampler.")
-#         match sampler_name:
-#             case "angular": sampler = AngularSampler(n_views, train_cam_infos)
-#             case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
-#             case "visibility": 
-#                 test_names = {c.image_name for c in test_cam_infos}
-#                 train_cam_extr = [e for _, e in cam_extrinsics.items() if e.name not in test_names]
-#                 sampler = VisibilitySampler(n_views, train_cam_infos, train_cam_extr)
-#             case _: sampler = RandomSampler(n_views, train_cam_infos)
-#         train_cam_infos = sampler.sample()
-#         sampler.save_cam_centers(path)
-#         assert len(train_cam_infos) == n_views
-#         print("Sampling successful!")
-#     # print("Exiting script!")
-#     # sys.exit(0)
-# # ##### Sample done #######
+# ##### Sample #######
+    if n_views > 0:
+        print(f"Sampling {n_views} views with {sampler_name} sampler.")
+        match sampler_name:
+            case "angular": sampler = AngularSampler(n_views, train_cam_infos)
+            case "baseline": sampler = BaselineSampler(n_views, train_cam_infos)
+            case "visibility": 
+                test_names = {c.image_name for c in test_cam_infos}
+                train_cam_extr = [e for _, e in cam_extrinsics.items() if e.name not in test_names]
+                sampler = VisibilitySampler(n_views, train_cam_infos, train_cam_extr)
+            case _: sampler = RandomSampler(n_views, train_cam_infos)
+        train_cam_infos = sampler.sample()
+        sampler.save_cam_centers(path)
+        assert len(train_cam_infos) == n_views
+        print("Sampling successful!")
+    # print("Exiting script!")
+    # sys.exit(0)
+# ##### Sample done #######
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
     scene_info = SceneInfo(point_cloud=pcd,

@@ -35,8 +35,7 @@ sampler=$4
 
 echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-output=$CORGS/output/${dataset}-${scene}-${view}-r4-it10000/
-# output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r4-it10000/
+output=$CORGS/output/${dataset}-${scene}-${sampler}-${view}-r4-it10000/
 
 # from -r down 3dgs flags
 python "$CORGS/train.py" \
@@ -55,6 +54,9 @@ python "$CORGS/train.py" \
   --position_lr_max_steps 10000 \
   --densify_until_iter 10000 \
   --densify_grad_threshold 0.0005
+
+## .sh script needs to be reviewed and adjusted
+# bash ./scripts/copy_mask_dtu.sh $output $scene
 
 # Generate renderings for trained model
 python "$CORGS/render.py" \
