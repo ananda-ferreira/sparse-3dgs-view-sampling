@@ -3,7 +3,7 @@
 #SBATCH --job-name=trainevaldepthscene      
 #SBATCH --output=trainevaldepthscene.%A_%a.out  # %A master job ID, %a task id
 #SBATCH --error=trainevaldepthscene.%A_%a.err
-#SBATCH --array=0-11                    # 3 views * 4 samplers = 12 configs
+#SBATCH --array=0-3                    # 3 views * 4 samplers = 12 configs
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
@@ -30,16 +30,18 @@ dataset=$1
 scene=$2
 
 # config arrays
-views=(2 4 6)
+# views=(2 4 6)
+views=(9)
 samplers=(random baseline angular visibility)
 
-
 # mapping
-view_idx=$((SLURM_ARRAY_TASK_ID / 4))
-sampler_idx=$((SLURM_ARRAY_TASK_ID % 4))
+# view_idx=$((SLURM_ARRAY_TASK_ID / 4))
+# sampler_idx=$((SLURM_ARRAY_TASK_ID % 4))
 
-view=${views[$view_idx]}
-sampler=${samplers[$sampler_idx]}
+# view=${views[$view_idx]}
+# sampler=${samplers[$sampler_idx]}
+view=${views[0]}
+sampler=${samplers[$SLURM_ARRAY_TASK_ID]}
 
 echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
