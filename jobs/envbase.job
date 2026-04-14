@@ -15,7 +15,10 @@ export CONDA_PKGS_DIRS=/home/anaf/anaconda3-2025/cache
 # Create environment using the conda binary
 /opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
 /opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
-/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda create -y -p /home/anaf/anaconda3-2025/envs/3dgs-base python=3.10
+conda create -y -p /home/anaf/anaconda3-2025/envs/3dgs-base python=3.10
+
+source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
+conda activate /home/anaf/anaconda3-2025/envs/3dgs-base
 
 conda install --quiet --yes -c conda-forge plyfile tqdm
 
