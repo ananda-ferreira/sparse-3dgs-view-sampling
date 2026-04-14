@@ -58,7 +58,7 @@ pip install -v --no-build-isolation ./submodules/simple-knn
 pip install -v --no-build-isolation ./submodules/fused-ssim
 
 # should i cd out again?
-conda install --quiet --yes -c conda-forge opencv=4.10 matplotlib joblib
+# conda install --quiet --yes -c conda-forge opencv=4.10 matplotlib joblib
 
 echo "DONE."
 #### final version ####
