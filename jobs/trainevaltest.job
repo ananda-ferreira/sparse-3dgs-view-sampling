@@ -31,7 +31,6 @@ which python
 python -c "import sys; print(sys.executable)"
 echo $CONDA_PREFIX
 python -c "import torch; print(torch.__version__)"
-conda list -n vgs | grep torch
 
 # args
 dataset=$1
