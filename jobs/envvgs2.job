@@ -14,7 +14,7 @@ module load CUDA/12.1.1             # needed for nvcc during submodules build
 
 export CONDA_PKGS_DIRS=/home/anaf/anaconda3-2025/cache
 
-# Create environment using the conda binary
+# step 1 Create environment using the conda binary
 # /opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda create -y \
 #   --clone /home/anaf/anaconda3-2025/envs/3dgs-base \
 #   -p /home/anaf/anaconda3-2025/envs/vgs2
@@ -25,7 +25,8 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/vgs2   
 
-pip install "setuptools<70" wheel 
+# step 2
+# pip install "setuptools<70" wheel 
 
 ## env check
 echo "=== Testing PyTorch import ==="
@@ -38,27 +39,30 @@ EOF
 
 nvcc --version
 
-## build submodules
-# Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
-export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
-export PATH="$CUDA_HOME/bin:$PATH"
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+## step 3 build submodules
+# # Ensure CUDA toolkit is discoverable for builds (CUDA_HOME, PATH, and prefer conda libs first)
+# export CUDA_HOME=${CUDA_HOME:-$(dirname "$(dirname "$(which nvcc)")")}
+# export PATH="$CUDA_HOME/bin:$PATH"
+# export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
 
-# Optional: set architectures to speed up builds (edit to match your GPU fleet)
-# Common coverage: V100(7.0), T4(7.5), A100(8.0), A10/A30/A40(8.6), L40S(8.9), H100(9.0)
-export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
-# Parallelize the C++/CUDA build with allocated CPUs
-export MAX_JOBS="${SLURM_CPUS_PER_TASK:-4}"
+# # Optional: set architectures to speed up builds (edit to match your GPU fleet)
+# # Common coverage: V100(7.0), T4(7.5), A100(8.0), A10/A30/A40(8.6), L40S(8.9), H100(9.0)
+# export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
+# # Parallelize the C++/CUDA build with allocated CPUs
+# export MAX_JOBS="${SLURM_CPUS_PER_TASK:-4}"
 
-# Build the submodules (must run inside repo)
-cd ~/sparse-3dgs/gaussian-splatting
+# # Build the submodules (must run inside repo)
+# cd ~/sparse-3dgs/gaussian-splatting
 
-pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
-pip install -v --no-build-isolation ./submodules/simple-knn
-pip install -v --no-build-isolation ./submodules/fused-ssim
+# pip install -v --no-build-isolation ./submodules/diff-gaussian-rasterization
+# pip install -v --no-build-isolation ./submodules/simple-knn
+# pip install -v --no-build-isolation ./submodules/fused-ssim
 
-# should i cd out again?
-# conda install --quiet --yes -c conda-forge opencv=4.10 matplotlib joblib
+# step 4
+conda install --quiet --yes -c conda-forge opencv=4.10
+
+# step 5 for depth anything
+# conda install --quiet --yes -c conda-forge matplotlib joblib
 
 echo "DONE."
 #### final version ####
