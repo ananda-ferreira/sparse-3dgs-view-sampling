@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=installiter7      # Job name
-#SBATCH --output=installiter7.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --job-name=installiteropencv      # Job name
+#SBATCH --output=installiteropencv.%j.out      # Name of output file (%j expands to jobId)
 #SBATCH --cpus-per-task=2           # Schedule one core
 #SBATCH --time=01:00:00             # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --partition=scavenge        # Run on either the Red or Brown queue
@@ -22,5 +22,4 @@ conda activate /home/anaf/anaconda3-2025/envs/vgs
 # conda env export > ../backup-vgs-iter7.yml
 
 # Install what you need 
-pip uninstall opencv-python opencv-python-headless -y
-conda install -c conda-forge opencv
+conda install -c conda-forge opencv --force-reinstall
