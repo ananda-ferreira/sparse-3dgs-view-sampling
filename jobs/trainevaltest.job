@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaltestenvvgs      
-#SBATCH --output=trainevaltestenvvgs.%j.out  # %A master job ID, %a task id
-#SBATCH --error=trainevaltestenvvgs.%j.err
+#SBATCH --job-name=trainevaltestenvvgs2      
+#SBATCH --output=trainevaltestenvvgs2.%j.out  # %A master job ID, %a task id
+#SBATCH --error=trainevaltestenvvgs2.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
@@ -23,7 +23,7 @@ export TMPDIR=/home/anaf/tmp
 
 # Load the conda shell function (required in batch jobs) + activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
-conda activate /home/anaf/anaconda3-2025/envs/vgs  
+conda activate /home/anaf/anaconda3-2025/envs/vgs2  
 
 # debug
 which conda
@@ -48,8 +48,8 @@ python "$VGS/train.py" \
   --n_views $view \
   --sampler $sampler \
   --eval \
-  --disable_viewer \
-  -d "$SPARSE/data/$dataset/$scene/depths" 
+  --disable_viewer
+  # -d "$SPARSE/data/$dataset/$scene/depths" 
 
 # # Generate renderings for trained model
 # python "$VGS/render.py" \
