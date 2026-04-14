@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#SBATCH --job-name=envbase           # Job name
+#SBATCH --output=envbase.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=2              # Schedule one core
+#SBATCH --time=01:00:00                # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=scavenge           # Run on either the Red or Brown queue
+
+set -e
+
+module load Anaconda3/2025.06-1                         # specify anaconda version
+
+export CONDA_PKGS_DIRS=/home/anaf/anaconda3-2025/cache
+
+# Create environment using the conda binary
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+/opt/itu/easybuild/software/Anaconda3/2025.06-1/bin/conda create -y -p /home/anaf/anaconda3-2025/envs/3dgs-base python=3.10
+
+conda install --quiet --yes -c conda-forge plyfile tqdm
+
+pip install --no-cache-dir torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+pip install --no-cache-dir --upgrade "numpy==1.26.4" "pybind11>=2.12"
+
