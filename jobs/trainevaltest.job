@@ -1,20 +1,19 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaltest        # Job name
-#SBATCH --output=trainevaltest.%j.out   # Name of output file (%j expands to jobId)
-#SBATCH --error=trainevaltest.%j.err
-#SBATCH --cpus-per-task=4               # Schedule 4 for VGS
-#SBATCH --partition=scavenge            # High performance compute nodes with GPUs
-# #SBATCH --gres=gpu:1                  # VGS is trained on 1 only, gres=gpu:rtx6000:1
-#SBATCH --nodelist=cn10                 # closest to A6000 from vanilla VGS?
-#SBATCH --gres=gpu:rtx6000:1            # VGS is trained on 1 only
+#SBATCH --job-name=trainevaldepthone      
+#SBATCH --output=trainevaldepthone.%A_%a.out  # %A master job ID, %a task id
+#SBATCH --error=trainevaldepthone.%A_%a.err
+#SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
+#SBATCH --partition=scavenge            # needed for rtx6000
+#SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
+#SBATCH --gres=gpu:rtx6000:1            # Vanilla 3DGS is trained on 1 only
 #SBATCH --mem=32G
-#SBATCH --time=01:00:00                 # 1 hours should be enough for train on 1 scene, trained < 20 min
+#SBATCH --time=1:00:00                 # enough if 15 min per train
 
 set -e # terminates if training fails, doesn't proceed with rendering or
 
 module purge
-module load GCC/12.3.0        
+module load GCC/12.3.0           
 module load CUDA/12.1.1
 module load Anaconda3/2025.06-1 
 
@@ -26,31 +25,32 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
 
-# change into project root, for hard-coded test March 20th
-cd $SPARSE  
+# args
+dataset=$1
+scene=$2
+sampler=$3
+view=$4
 
-sampler="baseline"
-view=9
-output=$VGS/output-test/dtu-scan8-$sampler-$view-norm-1/
+echo "Running: $dataset $scene | $view views | $sampler sampler | Id $SLURM_ARRAY_TASK_ID"
 
-# train model for db playroom
-python $VGS/train.py \
-    -s $SPARSE/data/dtu/scan8/ \
-    -m $output \
-    --n_views $view \
-    --sampler $sampler \
-    --eval \
-    --disable_viewer
-    # -d "$$SPARSE/data/$dataset/$scene/depths" \
+output=$VGS/output-test/${dataset}-${scene}-${sampler}-${view}/
+
+python "$VGS/train.py" \
+  -s "$SPARSE/data/$dataset/$scene/" \
+  -m "$output" \
+  --n_views $view \
+  --sampler $sampler \
+  --eval \
+  --disable_viewer \
+  -d "$SPARSE/data/$dataset/$scene/depths" 
 
 # # Generate renderings for trained model
-# python $VGS/render.py \
-#     -m $output
+# python "$VGS/render.py" \
+#   -m "$output"
  
 # # Compute error metrics on renderings
-# python $VGS/metrics.py \
-#     -m $output
+# python "$VGS/metrics.py" \
+#   -m "$output"
 
-# nvidia-smi 
+nvidia-smi 
 
-### final version ###
