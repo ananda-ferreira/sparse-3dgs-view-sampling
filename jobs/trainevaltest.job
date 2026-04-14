@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainevaldepthone      
-#SBATCH --output=trainevaldepthone.%j.out  # %A master job ID, %a task id
-#SBATCH --error=trainevaldepthone.%j.err
+#SBATCH --job-name=trainevaltestenvvgs      
+#SBATCH --output=trainevaltestenvvgs.%j.out  # %A master job ID, %a task id
+#SBATCH --error=trainevaltestenvvgs.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
@@ -23,7 +23,7 @@ export TMPDIR=/home/anaf/tmp
 
 # Load the conda shell function (required in batch jobs) + activate env
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
-conda activate /home/anaf/anaconda3-2025/envs/sparse-3dgs  
+conda activate /home/anaf/anaconda3-2025/envs/vgs  
 
 # debug
 which conda
