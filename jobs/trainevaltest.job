@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=trainevaldepthone      
-#SBATCH --output=trainevaldepthone.%A_%a.out  # %A master job ID, %a task id
-#SBATCH --error=trainevaldepthone.%A_%a.err
+#SBATCH --output=trainevaldepthone.%j.out  # %A master job ID, %a task id
+#SBATCH --error=trainevaldepthone.%j.err
 #SBATCH --cpus-per-task=4               # Schedule 4 as in Vanilla 3DGS
 #SBATCH --partition=scavenge            # needed for rtx6000
 #SBATCH --nodelist=cn10                 # closest to A6000 from Vanilla 3DGS
