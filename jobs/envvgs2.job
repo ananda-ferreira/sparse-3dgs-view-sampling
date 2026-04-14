@@ -2,9 +2,10 @@
 
 #SBATCH --job-name=envvgs2           # Job name
 #SBATCH --output=envvgs2.%j.out      # Name of output file (%j expands to jobId)
-#SBATCH --cpus-per-task=2              # Schedule one core
-#SBATCH --time=01:00:00                # Run time (hh:mm:ss) - run for one hour max
-#SBATCH --partition=scavenge           # Run on either the Red or Brown queue
+#SBATCH --cpus-per-task=4              # Schedule one core
+#SBATCH --time=03:00:00                # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=acltr           # Run on either the Red or Brown queue
+#SBATCH --gres=gpu:1                    # needed for submodule build
 
 set -e
 
