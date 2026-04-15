@@ -30,7 +30,7 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib
 
 # debug
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-ldd $(python -c "import cv2; print(cv2.__file__)") | grep stdc++
+python -c "import cv2; print(cv2.__file__)"
 
 # args
 dataset=$1
