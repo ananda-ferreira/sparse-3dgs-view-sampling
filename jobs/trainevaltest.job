@@ -13,7 +13,7 @@
 set -e # terminates if training fails, doesn't proceed with rendering or
 
 module purge
-# module load GCC/12.3.0           
+module load GCC/12.3.0           
 module load CUDA/12.1.1
 module load Anaconda3/2025.06-1 
 
@@ -26,7 +26,6 @@ source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/vgs2  
 
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib
-
 
 # debug
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
@@ -54,7 +53,7 @@ python "$VGS/train.py" \
 # # Generate renderings for trained model
 # python "$VGS/render.py" \
 #   -m "$output"
- 
+
 # # Compute error metrics on renderings
 # python "$VGS/metrics.py" \
 #   -m "$output"
