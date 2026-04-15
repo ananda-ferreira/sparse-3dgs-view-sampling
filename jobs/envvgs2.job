@@ -59,8 +59,6 @@ conda activate /home/anaf/anaconda3-2025/envs/vgs2
 # pip install -v --no-build-isolation ./submodules/fused-ssim
 
 # step 4 debug
-python -c "import cv2; print(cv2.__file__)"
-ls $CONDA_PREFIX/lib/python3.10/site-packages | grep cv2
 # conda install --quiet --yes -c conda-forge opencv=4.10
 
 # step 5 for depth anything
