@@ -25,12 +25,12 @@ export TMPDIR=/home/anaf/tmp
 source /opt/itu/easybuild/software/Anaconda3/2025.06-1/etc/profile.d/conda.sh
 conda activate /home/anaf/anaconda3-2025/envs/vgs2  
 
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib
+
+
 # debug
-which conda
-which python
-python -c "import sys; print(sys.executable)"
-echo $CONDA_PREFIX
-python -c "import torch; print(torch.__version__)"
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+ldd $(python -c "import cv2; print(cv2.__file__)") | grep stdc++
 
 # args
 dataset=$1
