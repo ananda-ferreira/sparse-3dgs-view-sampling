@@ -2,25 +2,31 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+import umap.umap_ as umap
+from sklearn.decomposition import PCA
 
-from read_output import read_metrics_from_json
+from read_output import read_metrics_from_json, fetchPly
 
 ## plot camera info
-def highlight_sparse_views(cs, sparse_cs = [], title = "", center = None, label=False, save_path=None):
+def highlight_sparse_views(cs, sparse_cs=[], test_cs=[], title="", label=False, save_path=None):
 
     sparse, others = [], []
-
-    def is_in_sparse(c, sparse_cs, tol=1e-6):
-        return any(np.allclose(c, s, atol=tol) for s in sparse_cs)
+    used_indices = set()
     
-    for i, c in enumerate(cs):
-        if is_in_sparse(c, sparse_cs):
-            sparse.append((i+1, c))
-        else:
-            others.append((i+1, c))
+    def is_close(a, b, tol=1e-6):
+        return np.allclose(a, b, atol=tol)
 
-    # sparse = [(i+1, c) for i, c in enumerate(cs) if is_in_sparse(c, sparse_cs)]
-    # others = [(i+1, c) for i, c in enumerate(cs) if not is_in_sparse(c, sparse_cs)]
+    # Build sparse in sparse_cs order
+    for sc in sparse_cs:
+        for i, c in enumerate(cs):
+            if is_close(c, sc):
+                sparse.append((i + 1, c))
+                used_indices.add(i)
+                break  # stop after first match
+    
+    # Build others and test from remaining
+    others = [(i + 1, c) for i, c in enumerate(cs) if i not in used_indices]
+    test = [(i + 1, c) for i, c in enumerate(test_cs)]
 
     fig = plt.figure()
     fig.suptitle(title, fontsize=8)
@@ -29,30 +35,30 @@ def highlight_sparse_views(cs, sparse_cs = [], title = "", center = None, label=
     # plot all other cameras
     for i, c in others:
         ax.scatter(c[0], c[1], c[2], color='blue', alpha=0.1)
-        if label: ax.text(c[0], c[1], c[2], str(i), color='blue', alpha=0.2, fontsize=8)
+        if label: ax.text(c[0], c[1], c[2], str(i), color='blue', alpha=0.2, fontsize=6)
+    
+    # plot all other cameras
+    for i, c in test:
+        ax.scatter(c[0], c[1], c[2], color=(0, 1, 0, 1), alpha=1)
+        if label: ax.text(c[0], c[1], c[2], str(i), color=(0, 1, 0, 1), alpha=1, fontsize=6)
 
     # Plot highlighted subset
     for j, (i, c) in enumerate(sparse):
-        print(c)
+        # print(c)
         if j < 2:
-            color = (1, 0.8, 0, 1)
+            color = (1, 0.2, 0, 1)
         elif j < 4:
             color = (1, 0.6, 0, 1)
         else:
-            color = (1, 0.2, 0, 1)
+            color = (1, 0.8, 0, 1)
         ax.scatter(c[0], c[1], c[2], color=color)
-        if label: ax.text(c[0], c[1], c[2], str(i), color='red', fontsize=8)
+        if label: ax.text(c[0], c[1], c[2], str(i), color=color, fontsize=6)
     
     # add world center
     ax.scatter(0,0,0, color='grey')
-    if label: ax.text(0,0,0, "world", color='grey', fontsize=8)
+    if label: ax.text(0,0,0, "world", color='grey', fontsize=6)
     # ax.quiver(0, 0, 0, 0, 0, 1, length=2) 
     
-    # add scene center
-    if center:
-        ax.scatter(center[0], center[1], center[3], color='green')
-        if label: ax.text(0,0,0, "scene", color='green', fontsize=8)
-
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
@@ -66,6 +72,92 @@ def highlight_sparse_views(cs, sparse_cs = [], title = "", center = None, label=
     ax.view_init(-75, -90) # elev: rotation from side to top/bottom view; azim: rotation only around z axis
                  
     # Save or show
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+
+def highlight_sparse_views_reduced(reducer, cs, sparse_cs=[], test_cs=[], title="", center=None, label=False, save_path=None):
+
+    sparse, others = [], []
+    used_indices = set()
+
+    def is_close(a, b, tol=1e-6):
+        return np.allclose(a, b, atol=tol)
+
+    # --- Match sparse points (same as your code) ---
+    for sc in sparse_cs:
+        for i, c in enumerate(cs):
+            if is_close(c, sc):
+                sparse.append((i, c))  # keep 0-based indexing
+                used_indices.add(i)
+                break
+
+    others = [(i, c) for i, c in enumerate(cs) if i not in used_indices]
+
+    # --- projection ---
+    X = np.array(cs)
+    labels = []
+
+    reduc = None
+    if reducer == "umap":
+        reduc = umap.UMAP( n_neighbors=50, min_dist=0.1, metric="euclidean", random_state=42)
+        labels = ["UMAP-1", "UMAP-2"]
+    elif reducer == "pca":
+        reduc = PCA(n_components=2)
+        labels = ["PCA-1", "PCA-2"]
+    else: 
+       ValueError
+
+    embedding = reduc.fit_transform(X)
+    test_embedding = None
+    if len(test_cs) > 0:
+        test_X = np.array(test_cs)
+        test_embedding = reduc.transform(test_X)
+
+    # map index → 2D point
+    emb_dict = {i: embedding[i] for i in range(len(cs))}
+
+    # --- Plot ---
+    plt.figure(figsize=(6, 6))
+    plt.title(title, fontsize=8)
+
+    # plot others
+    for i, _ in others:
+        e = emb_dict[i]
+        plt.scatter(e[0], e[1], color='blue', alpha=0.1)
+        # if label:
+        #     plt.text(e[0], e[1], str(i), color='blue', alpha=0.2, fontsize=6)
+
+    # plot test
+    if test_embedding is not None:
+        for i, e in enumerate(test_embedding):
+            plt.scatter(e[0], e[1], color=(0, 1, 0, 1), alpha=1)
+            if label:
+                plt.text(e[0]+0.1, e[1]+0.1, f"{i}", color=(0, 1, 0, 1), fontsize=6)
+
+    # plot highlighted subset (same gradient logic)
+    for j, (i, _) in enumerate(sparse):
+        e = emb_dict[i]
+
+        if j < 2:
+            color = (1, 0.2, 0, 1)
+        elif j < 4:
+            color = (1, 0.6, 0, 1)
+        else:
+            color = (1, 0.8, 0, 1)
+
+        plt.scatter(e[0], e[1], color=color)
+        if label:
+            plt.text(e[0], e[1], str(i), color=color, fontsize=6)
+
+    plt.xlabel(labels[0])
+    plt.ylabel(labels[1])
+    plt.grid(True, alpha=0.3)
+    plt.axis("equal")
+    plt.tight_layout()
+
     if save_path is not None:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -175,6 +267,8 @@ def plot_renders_per_view_even(viewCount, dataset, scene, count, output_path, sa
         axes = [axes]
 
     for row_idx, filename in enumerate(selected_files):
+        axes[row_idx][0].set_ylabel(selected_positions[row_idx], fontsize=20, rotation=0, labelpad=32, va='center')
+
         for col_idx, sampler in enumerate(samplers):
             ax = axes[row_idx][col_idx]
 
@@ -308,6 +402,113 @@ def plot_metrics_table(output_path, scenes, datasets, sparse_view_counts, sample
     plt.tight_layout()
     plt.show()
 
+def plot_delta_table(output_paths, scene, dataset, sparse_view_counts, samplers, save_path):
+    """ output_paths: list of str. Exactly 2 paths expected, first A then B for delta = B-A.
+    """
+    table_data = []
+    row_labels = []
+
+    # for diff row
+    table_v = []
+    table_cor = []
+
+    for view_count in sparse_view_counts:
+        row_labels.append(f"{view_count} views")
+        row_v = []
+        row_cor = []
+
+        # Order: PSNR → SSIM → LPIPS
+        for metric in ["PSNR", "SSIM", "LPIPS"]:
+            for s in samplers:
+                output_dir = f"{dataset}-{scene}-{s}-{view_count}"
+                path = os.path.join(output_paths[0], output_dir)
+                path_cor = os.path.join(output_paths[1], output_dir)
+
+                try:
+                    results_v = read_metrics_from_json(path)["ours_30000"]
+                    results_cor = read_metrics_from_json(path_cor)["ours_30000"]
+                    value_v, value_cor = results_v[metric], results_cor[metric]
+                except Exception:
+                    value_v, value_cor = None, None
+
+                row_v.append(f"{value_v:.5f}" if value_v is not None else "")
+                row_cor.append(f"{value_cor:.5f}" if value_cor is not None else "")
+        table_v.append(row_v)
+        table_cor.append(row_cor)
+
+    # --- Add difference row (cor - v) ---
+    if table_v is not None and table_cor is not None:
+
+        for i, _ in enumerate(table_v):
+            diff_row = []
+            
+            for v, cor in zip(table_v[i], table_cor[i]):
+                try:
+                    diff = float(cor) - float(v)
+                    diff_row.append(f"{diff:.3f}")  # + sign for clarity
+                except:
+                    diff_row.append("")
+
+            table_data.append(diff_row)
+        
+    # Column labels
+    col_labels = (
+        [f"PSNR\n{s}" for s in samplers] +
+        [f"SSIM\n{s}" for s in samplers] +
+        [f"LPIPS\n{s}" for s in samplers]
+    )
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(14, 4))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=row_labels,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center'
+    )
+
+    for (row, col), cell in table.get_celld().items():
+        # Skip header row (row == 0) and row labels (col == -1)
+        if row == 0 or col == -1:
+            continue
+
+        
+        try:
+            value = float(table_data[row-1][col])  # row-1 because row 0 is header
+
+            # Check whether this column is an LPIPS column
+            is_lpips = "LPIPS" in col_labels[col]
+
+            # Reverse coloring for LPIPS
+            if is_lpips:
+                if value > 0:
+                    cell.set_facecolor((1, 0.2, 0, 0.2))  # light red
+                elif value < 0:
+                    cell.set_facecolor((0.2, 1, 0, 0.2))  # light green
+                else:
+                    cell.set_facecolor("white")
+            else: 
+                if value > 0:
+                    cell.set_facecolor((0.2, 1, 0, 0.2))  # light green
+                elif value < 0:
+                    cell.set_facecolor((1, 0.2, 0, 0.2))  # light red
+                else:
+                    cell.set_facecolor('white') 
+        except:
+            pass
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(12)
+    table.scale(1, 2.2)
+
+    ax.set_title(f"Δ corgs – drgs | {dataset} {scene}", fontsize=16, pad=0)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
 def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, save_path):
     table_data = []
     row_labels = []
@@ -363,7 +564,7 @@ def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, 
     )
 
     # --- Plot ---
-    fig, ax = plt.subplots(figsize=(14, 3))
+    fig, ax = plt.subplots(figsize=(14, 4))
     ax.axis('off')
 
     table = ax.table(
@@ -379,10 +580,10 @@ def plot_scene_table(output_path, scene, dataset, sparse_view_counts, samplers, 
     highlight_best_per_row(table, table_data, samplers)
 
     table.auto_set_font_size(False)
-    table.set_fontsize(9)
-    table.scale(1, 1.8)
+    table.set_fontsize(12)
+    table.scale(1, 2.2)
 
-    ax.set_title(f"{dataset} – {scene}", fontsize=12, pad=8)
+    ax.set_title(f"cor-gs - {dataset} – {scene}", fontsize=16, pad=0)
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
@@ -453,7 +654,7 @@ def plot_dataset_table(output_path, scenes, dataset, sparse_view_counts, sampler
     )
 
     # --- Plot ---
-    fig, ax = plt.subplots(figsize=(14, 3))
+    fig, ax = plt.subplots(figsize=(14, 4))
     ax.axis('off')
 
     table = ax.table(
@@ -469,10 +670,56 @@ def plot_dataset_table(output_path, scenes, dataset, sparse_view_counts, sampler
     highlight_best_per_row(table, table_data, samplers)
 
     table.auto_set_font_size(False)
+    table.set_fontsize(12)
+    table.scale(1, 2.2)
+
+    ax.set_title(f"{dataset}", fontsize=16, pad=0)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
+def plot_scene_point_counts(output_path, scene, dataset, sparse_view_counts, samplers, save_path):
+    table_data = []
+    row_labels = []
+
+    for view_count in sparse_view_counts:
+        row_labels.append(f"{view_count} views")
+        row = []
+
+        for s in samplers:
+            output_dir = f"{dataset}-{scene}-{s}-{view_count}"
+            path = os.path.join(output_path, output_dir, "point_cloud/iteration_30000/point_cloud.ply")
+            try:
+                value = fetchPly(path).count
+            except Exception:
+                value = None
+            row.append(f"{value}" if value is not None else "")
+
+        table_data.append(row)
+        
+    # Column labels
+    col_labels = (samplers)
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.axis('off')
+
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=row_labels,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center'
+    )
+
+    # add_group_separators(ax, table, samplers)
+    highlight_best_per_row(table, table_data, samplers)
+
+    table.auto_set_font_size(False)
     table.set_fontsize(9)
     table.scale(1, 1.8)
 
-    ax.set_title(f"{dataset}", fontsize=12, pad=8)
+    ax.set_title(f"point cloud - {dataset} {scene}", fontsize=12, pad=8)
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
@@ -483,9 +730,9 @@ def color_metric_headers(table, samplers):
 
     # Colors for each metric group
     colors = {
-        "PSNR": (0.6, 0, 0, 0.15),   
-        "SSIM": (0, 0.6, 0, 0.15),   
-        "LPIPS": (0, 0, 0.6, 0.15)  
+        "PSNR": (1, 0.2, 0, 0.2),   
+        "SSIM": (0.2, 1, 0, 0.2),   
+        "LPIPS": (1, 0.9, 0, 0.2)  
     }
 
     # Header row is row=0 in matplotlib tables
